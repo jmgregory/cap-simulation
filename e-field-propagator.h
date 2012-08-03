@@ -10,8 +10,6 @@ using namespace std;
 
 const double c = 2.998e8; // m/s
 
-double abs(double x);
-
 struct slice
 {
   complex El;

@@ -56,7 +56,7 @@ private:
   double strain(double z, double td);
 };
 
-cap_simulation *current_sim;
 complex cap_index(double z);
+double abs(double x);
 
 #endif

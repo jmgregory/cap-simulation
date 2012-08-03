@@ -48,4 +48,6 @@ ostream & operator << (ostream & out, complex z);
 bool isReal(complex z);
 bool isImaginary(complex z);
 
+double sgn(double);
+
 #endif

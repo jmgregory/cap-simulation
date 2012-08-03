@@ -1,5 +1,12 @@
 #include "cap-simulation.h"
 
+cap_simulation *current_sim;
+
+double abs(double x)
+{
+  return (x > 0.0 ? x : -x);
+}
+
 void cap_simulation::print_parameters(ostream & out)
 {
   /*
@@ -54,11 +61,6 @@ double cap_simulation::RR(double t)
   current_sim = this;
   e_field_propagator efp(material, &laser, cap_index);
   return efp.run();
-}
-
-double sgn(double x)
-{
-  return x > 0.0 ? 1.0 : (x == 0.0 ? 0.0 : -1.0);
 }
 
 double cap_simulation::strain(double time_delay, double z)
