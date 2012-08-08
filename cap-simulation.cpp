@@ -7,27 +7,31 @@ double abs(double x)
   return (x > 0.0 ? x : -x);
 }
 
-void cap_simulation::print_parameters(ostream & out)
+void cap_simulation::print_parameters(ostream & out, string tag)
 {
-  /*
-  double period = laser.wavelength / c;
-  double frequency = 1 / period;
-  out << endl;
-  out << "Simulation Parameters" << endl;
-  out << "=====================" << endl;
-  out << "Time Increment: " << time_step * 1e15 / c << " fs" << endl;
-  out << "Resolution: " << resolution*1e9 << " nm,\t" << resolution / a << " (" << a / resolution << " per unit length)" << endl;
-  out << "Interface position: " << interfacePos*1e9 << " nm,\t" << interfacePos / a << endl;
-  out << "Index of refraction outside sample: " << n0 << " + " << kappa0 << "i" << endl;
-  out << "Laser (vacuum) wavelength: " << laser.probe_wavelength*1e9 << " nm,\t" << laser.probe_wavelength / a << endl;
-  out << "Frequency: " << frequency << " Hz,\t" << frequency / (c / a) << endl;
-  out << "Period: " << 1e15 / frequency << " fs,\t" << (1 / frequency) / (a / c) << endl;
-  out << "Beam diameter: " << laser.pump_diameter*1e6 << " um" << endl;
-  out << "Laser power: " << laser.pump_power *1e3 << " mW" << endl;
-  out << "Laser rep. rate: " << laser.rep_rate * 1e6 << " MHz" << endl;
-  out << "Energy per pulse: " << laser.Q() * 1e9 << " nJ" << endl;
-  out << endl;
-  */
+  out << tag << "CAP Simulation: Parameters" << endl;
+  out << tag << "==========================" << endl;
+  out << tag << "  Laser Beam" << endl;
+  out << tag << "  ---------------------" << endl;
+  out << tag << "       Repetition rate: " << laser.rep_rate << " Hz" << endl;
+  out << tag << "            Pump power: " << laser.pump_power << " W" << endl;
+  out << tag << "    Pump spot diameter: " << laser.pump_diameter * 1e6 << " um" << endl;
+  out << tag << "      Probe wavelength: " << laser.probe_wavelength * 1e9 << " nm" << endl;
+  out << tag << "      Probe time width: " << laser.time_width * 1e15 << " fs (FWHM)" << endl;
+  out << tag << endl;
+  out << tag << "  Capping Layer" << endl;
+  out << tag << "  -------------------------------" << endl;
+  out << tag << "                    Reflectivity: " << material->cap_layer.R << endl;
+  out << tag << "               Absorption length: " << material->cap_layer.zeta * 1e6 << " um" << endl;
+  out << tag << "          Specific heat capacity: " << material->cap_layer.C << " J/g/K" << endl;
+  out << tag << "                         Density: " << material->cap_layer.rho << " g/cm^3" << endl;
+  out << tag << "                 Poisson's ratio: " << material->cap_layer.nu << endl;
+  out << tag << "    Linear expansion coefficient: " << material->cap_layer.beta << endl;
+  out << tag << endl;
+  out << tag << "  CAP Material" << endl;
+  out << tag << "  -------------------------------" << endl;
+  out << tag << "    Smallest interesting feature: " << material->smallest_feature() * 1e9 << " nm" << endl;
+  out << tag << "       Maximum interesting depth: " << material->max_interesting_depth() * 1e9 << " nm" << endl;
 }
 
 vector <cap_point> cap_simulation::run(double td_stop, double td_step)
@@ -37,7 +41,7 @@ vector <cap_point> cap_simulation::run(double td_stop, double td_step)
 
 vector <cap_point> cap_simulation::run(double td_start, double td_stop, double td_step)
 {
-  if (!quiet) cerr << "Calculating R0...";
+  if (!quiet) cerr << "Calculating R_0...";
   int sec1 = time(NULL);
   double R0 = RR(-1);
   int sec2 = time(NULL);

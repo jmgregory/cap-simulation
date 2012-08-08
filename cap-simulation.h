@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <string>
 #include "cap-material.h"
 #include "e-field-propagator.h"
 
@@ -35,7 +36,7 @@ public:
   vector <cap_point> run(double td_stop, double td_step);
   vector <cap_point> run(double td_start, double td_stop, double td_step);
 
-  void print_parameters(ostream & out = cout);
+  void print_parameters(ostream & out = cout, string tag = "");
   void set_material(cap_material *mat);
 
   // Set to true to disable progress output
