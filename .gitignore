@@ -1,3 +1,5 @@
 *.o
 cap-sim
 *~
+*.dat
+fit.log
