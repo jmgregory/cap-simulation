@@ -33,10 +33,11 @@ void cap_simulation::print_parameters(ostream & out, string tag) const
   out << tag << endl;
   out << tag << "  Simulation" << endl;
   out << tag << "  -------------------------------" << endl;
-  out << tag << "    Smallest interesting feature: " << material->smallest_feature() * 1e9 << " nm" << endl;
   out << tag << "       Maximum interesting depth: " << material->max_interesting_depth() * 1e9 << " nm" << endl;
+  out << tag << "    Smallest interesting feature: " << material->smallest_feature() * 1e9 << " nm" << endl;
   current_sim = (cap_simulation *)this;
   e_field_propagator efp(material, &laser, cap_index);
+  out << tag << "                      Resolution: " << efp.getResolution() * 1e9 << " nm" << endl;
   out << tag << "                       Time step: " << efp.getTimeStep() * 1e15 << " fs" << endl;
   out << tag << "              Number of z-slices: " << efp.getSliceCount() << endl;
 }

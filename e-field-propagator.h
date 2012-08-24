@@ -36,6 +36,7 @@ class e_field_propagator
 
   int getSliceCount() const;
   double getTimeStep() const;
+  double getResolution() const;
 
  private:
   double resolution;

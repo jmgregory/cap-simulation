@@ -59,24 +59,19 @@ void e_field_propagator::initialize(const cap_material *cm, const laser_beam *la
   frequency = c / wavelength; // Hz
   omega = 2 * pi * frequency;
 
-  if (true)//(cm == NULL)
+  if (cm == NULL)
     {
-      resolution = 2000;
+      resolution = 0.5e-9;
       zstart = -200e-9;
       zstop = 1e-6;
     }
   else
     {
-      zstart = -200e-9;
+      zstart = -10e-9;
       zstop = cm->max_interesting_depth();
-      if (cm->smallest_feature() > wavelength)
-	{
-	  resolution = (zstop - zstart) / wavelength;
-	}
-      else
-	{
-	  resolution = (zstop - zstart) / cm->smallest_feature();
-	}
+      resolution = cm->smallest_feature();
+      // Need at least 1nm resolution to properly sample the strain wave
+      if (resolution > 1e-9) resolution = 1e-9;
     }
 
   if (slices != NULL)
@@ -92,8 +87,8 @@ void e_field_propagator::initialize(const cap_material *cm, const laser_beam *la
 
   slicecount = 0;
   double zcount = zstart;
-  double width = zstop - zstart;
-  double zstep = width / resolution;
+  //double width = zstop - zstart;
+  double zstep = resolution;
   timestep = zstep / c;
   while (zcount <= zstop)
     {
@@ -220,5 +215,10 @@ int e_field_propagator::getSliceCount() const
 double e_field_propagator::getTimeStep() const
 {
   return timestep;
+}
+
+double e_field_propagator::getResolution() const
+{
+  return resolution;
 }
 
