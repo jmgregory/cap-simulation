@@ -6,12 +6,12 @@ void slice::setWavenumber(complex n, double wavelength)
   lambda = wavelength;
 }
 
-double slice::n()
+double slice::n() const
 {
   return real(k) * lambda / (2 * pi);
 }
 
-double slice::kappa()
+double slice::kappa() const
 {
   return imag(k) * lambda / (2 * pi);
 }
@@ -22,7 +22,7 @@ e_field_propagator::e_field_propagator()
   initialize(NULL, NULL, this->default_index);
 }
 
-e_field_propagator::e_field_propagator(cap_material *cm, laser_beam *laser, complex (*index)(double))
+e_field_propagator::e_field_propagator(const cap_material *cm, const laser_beam *laser, complex (*index)(double))
 {
   slices = newslices = NULL;
   initialize(cm, laser, index);
@@ -34,17 +34,17 @@ e_field_propagator::~e_field_propagator()
   if (newslices != NULL) free(newslices);
 }
 
-complex e_field_propagator::r(complex k_in, complex k_out)
+complex e_field_propagator::r(complex k_in, complex k_out) const
 {
   return (k_in - k_out) / (k_in + k_out);
 }
 
-complex e_field_propagator::t(complex k_from, complex k_to)
+complex e_field_propagator::t(complex k_from, complex k_to) const
 {
   return 2 * k_from / (k_from + k_to);
 }
 
-void e_field_propagator::initialize(cap_material *cm, laser_beam *laser, complex (*index)(double))
+void e_field_propagator::initialize(const cap_material *cm, const laser_beam *laser, complex (*index)(double))
 {
   if (laser == NULL)
     {
@@ -59,17 +59,24 @@ void e_field_propagator::initialize(cap_material *cm, laser_beam *laser, complex
   frequency = c / wavelength; // Hz
   omega = 2 * pi * frequency;
 
-  if (cm == NULL)
+  if (true)//(cm == NULL)
     {
-      resolution = 100e-9;
+      resolution = 1000;
       zstart = -200e-9;
-      zstop = 1e6;
+      zstop = 1e-6;
     }
   else
     {
-      resolution = cm->smallest_feature();
-      zstart = -wavelength / resolution * 2.0;
+      zstart = -200e-9;
       zstop = cm->max_interesting_depth();
+      if (cm->smallest_feature() > wavelength)
+	{
+	  resolution = (zstop - zstart) / wavelength;
+	}
+      else
+	{
+	  resolution = (zstop - zstart) / cm->smallest_feature();
+	}
     }
 
   if (slices != NULL)
@@ -91,8 +98,12 @@ void e_field_propagator::initialize(cap_material *cm, laser_beam *laser, complex
   while (zcount <= zstop)
     {
       zcount += zstep / real(index(zcount));
+      //cerr << slicecount << '\t' << zcount * 1e9 << '\t' << real(index(zcount)) << endl;
       slicecount++;
     }
+  //cerr << "width " << width << endl;
+  //cerr << timestep << endl;
+
   slices    = (slice *)malloc(sizeof(slice) * slicecount);
   newslices = (slice *)malloc(sizeof(slice) * slicecount);
   if (slices == NULL || newslices == NULL)
@@ -122,7 +133,7 @@ void e_field_propagator::clear_fields()
     }
 }
 
-double e_field_propagator::get_total_flux()
+double e_field_propagator::get_total_flux() const
 {
   double sum = 0.0;
   for (int i = 0; i < slicecount - 1; i++)
@@ -197,5 +208,17 @@ double e_field_propagator::run()
 
 complex e_field_propagator::default_index(double z)
 {
-  return 1.0;
+  if (z < 0.0) return 1.0;
+  return 2.0;
 }
+
+int e_field_propagator::getSliceCount() const
+{
+  return slicecount;
+}
+
+double e_field_propagator::getTimeStep() const
+{
+  return timestep;
+}
+

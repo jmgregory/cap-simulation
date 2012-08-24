@@ -36,14 +36,14 @@ public:
   vector <cap_point> run(double td_stop, double td_step);
   vector <cap_point> run(double td_start, double td_stop, double td_step);
 
-  void print_parameters(ostream & out = cout, string tag = "");
+  void print_parameters(ostream & out = cout, string tag = "") const;
   void set_material(cap_material *mat);
 
   // Set to true to disable progress output
   bool quiet;
 
-  double n(double z, double td);
-  double k(double z, double td);
+  double n(double z, double td) const;
+  double k(double z, double td) const;
   double current_time;
 
 private:
@@ -54,7 +54,7 @@ private:
   cap_material *material;
   laser_beam laser;
 
-  double strain(double z, double td);
+  double strain(double z, double td) const;
 };
 
 complex cap_index(double z);

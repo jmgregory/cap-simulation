@@ -19,20 +19,23 @@ struct slice
   double lambda;
 
   void setWavenumber(complex n, double wavelength);
-  double n();
-  double kappa();
+  double n() const;
+  double kappa() const;
 };
 
 class e_field_propagator
 {
  public:
   e_field_propagator();
-  e_field_propagator(cap_material *cm, laser_beam *laser, complex (*index)(double));
+  e_field_propagator(const cap_material *cm, const laser_beam *laser, complex (*index)(double));
   ~e_field_propagator();
 
-  void initialize(cap_material *cm, laser_beam *laser, complex (*index)(double));
+  void initialize(const cap_material *cm, const laser_beam *laser, complex (*index)(double));
   void clear_fields();
   double run(); // Return reflectivity of sample
+
+  int getSliceCount() const;
+  double getTimeStep() const;
 
  private:
   double resolution;
@@ -46,10 +49,10 @@ class e_field_propagator
   double frequency, omega;
   double r_flux, i_flux;
 
-  complex t(complex k_from, complex k_to);
-  complex r(complex k_in, complex k_out);
+  complex t(complex k_from, complex k_to) const;
+  complex r(complex k_in, complex k_out) const;
   static complex default_index(double z);
-  double get_total_flux();
+  double get_total_flux() const;
 
 };
 

@@ -1,13 +1,16 @@
 #include "cap-simulation.h"
+#include <cmath>
+
+using namespace std;
 
 cap_simulation *current_sim;
 
-double abs(double x)
+double my_abs(double x)
 {
   return (x > 0.0 ? x : -x);
 }
 
-void cap_simulation::print_parameters(ostream & out, string tag)
+void cap_simulation::print_parameters(ostream & out, string tag) const
 {
   out << tag << "CAP Simulation: Parameters" << endl;
   out << tag << "==========================" << endl;
@@ -28,10 +31,14 @@ void cap_simulation::print_parameters(ostream & out, string tag)
   out << tag << "                 Poisson's ratio: " << material->cap_layer.nu << endl;
   out << tag << "    Linear expansion coefficient: " << material->cap_layer.beta << endl;
   out << tag << endl;
-  out << tag << "  CAP Material" << endl;
+  out << tag << "  Simulation" << endl;
   out << tag << "  -------------------------------" << endl;
   out << tag << "    Smallest interesting feature: " << material->smallest_feature() * 1e9 << " nm" << endl;
   out << tag << "       Maximum interesting depth: " << material->max_interesting_depth() * 1e9 << " nm" << endl;
+  current_sim = (cap_simulation *)this;
+  e_field_propagator efp(material, &laser, cap_index);
+  out << tag << "                       Time step: " << efp.getTimeStep() * 1e15 << " fs" << endl;
+  out << tag << "              Number of z-slices: " << efp.getSliceCount() << endl;
 }
 
 vector <cap_point> cap_simulation::run(double td_stop, double td_step)
@@ -44,13 +51,17 @@ vector <cap_point> cap_simulation::run(double td_start, double td_stop, double t
   if (!quiet) cerr << "Calculating R_0...";
   int sec1 = time(NULL);
   double R0 = RR(-1);
+  if (R0 == 0.0)
+    {
+      cerr << "Warning: R0 was calculated to be zero!  All CAP points will be INF." << endl;
+    }
   int sec2 = time(NULL);
   if (!quiet) cerr << "done." << endl;
   if (!quiet) cerr << "Estimated calculating time: " << int(((sec2 - sec1) * (td_stop - td_start) / td_step) / 60) << " minute(s)" << endl;
 
   vector <cap_point> out;
   
-  for (double t = td_start; t < td_stop; t += td_step)
+  for (double t = td_start; t <= td_stop; t += td_step)
     {
       if (!quiet) cerr << "\r" << int((t - td_start)/td_stop*100) << "%";
       out.push_back(cap_point(t, (RR(t) - R0)/R0));
@@ -63,26 +74,33 @@ vector <cap_point> cap_simulation::run(double td_start, double td_stop, double t
 double cap_simulation::RR(double t)
 {
   current_sim = this;
+  current_time = t;
   e_field_propagator efp(material, &laser, cap_index);
-  return efp.run();
+  double out = efp.run();
+  if (isinf(out) || isnan(out))
+    {
+      cerr << "Warning: e_field_propagator returned INF or NAN.  Consider increasing resolution." << endl;
+    }
+  return out;
 }
 
-double cap_simulation::strain(double time_delay, double z)
+double cap_simulation::strain(double time_delay, double z) const
 {
   if (time_delay < 0) return 0;
   if (z < 0) return 0;
   double vs = material->vs(z);
   double zeta = material->cap_layer.zeta;
   double depth = z - vs*time_delay;
-  return material->cap_layer.strain_factor() * laser.Q() / laser.A() * (exp(-z/zeta) - 0.5*(exp(-(z+vs*time_delay)/zeta)) - 0.5*exp(-abs(depth)/zeta)*sgn(depth));
+  return material->cap_layer.strain_factor() * laser.Q() / laser.A() * (exp(-z/zeta) - 0.5*(exp(-(z+vs*time_delay)/zeta)) - 0.5*exp(-my_abs(depth)/zeta)*sgn(depth));
 }
 
-double cap_simulation::n(double td, double z)
+double cap_simulation::n(double td, double z) const
 {
+  //cerr << "-- " << z << '\t' << material->n(z) << endl;
   return material->n(z) + strain(td, z) * material->dndeta(z);
 }
 
-double cap_simulation::k(double td, double z)
+double cap_simulation::k(double td, double z) const
 {
   return material->kappa(z) + strain(td, z) * material->dkappadeta(z);
 }
@@ -126,5 +144,6 @@ cap_simulation::~cap_simulation()
 
 complex cap_index(double z)
 {
-  return complex(current_sim->n(z, current_sim->current_time), current_sim->k(z, current_sim->current_time));
+  //cerr << "---- " << z << '\t' << current_sim->n(current_sim->current_time, z) << endl;
+  return complex(current_sim->n(current_sim->current_time, z), current_sim->k(current_sim->current_time, z));
 }
