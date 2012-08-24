@@ -14,3 +14,4 @@ complex.o: complex.cpp complex.h
 clean:
 	-rm *~
 	-rm *.o
+	-rm cap-sim
