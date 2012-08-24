@@ -97,12 +97,12 @@ double cap_simulation::strain(double time_delay, double z) const
 double cap_simulation::n(double td, double z) const
 {
   //cerr << "-- " << z << '\t' << material->n(z) << endl;
-  return material->n(z) + strain(td, z) * material->dndeta(z);
+  return material->n(z, laser.probe_wavelength) + strain(td, z) * material->dndeta(z, laser.probe_wavelength);
 }
 
 double cap_simulation::k(double td, double z) const
 {
-  return material->kappa(z) + strain(td, z) * material->dkappadeta(z);
+  return material->kappa(z, laser.probe_wavelength) + strain(td, z) * material->dkappadeta(z, laser.probe_wavelength);
 }
 
 void cap_simulation::set_material(cap_material *mat)

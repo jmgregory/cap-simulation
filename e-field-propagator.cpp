@@ -61,7 +61,7 @@ void e_field_propagator::initialize(const cap_material *cm, const laser_beam *la
 
   if (true)//(cm == NULL)
     {
-      resolution = 1000;
+      resolution = 2000;
       zstart = -200e-9;
       zstop = 1e-6;
     }

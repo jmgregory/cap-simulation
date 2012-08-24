@@ -59,17 +59,17 @@ public:
   virtual double max_interesting_depth() const { return 1e-6; }
 
   // Real index of refraction
-  virtual double n(double z) const { if (z >= 0.0) return 2.4; return 1.0; }
+  virtual double n(double z, double lambda) const { if (z >= 0.0) return 2.4; return 1.0; }
 
   // Imaginary index of refraction
-  virtual double kappa(double z) const { if (z >= 0.0) return 0.05; return 1.0; }
+  virtual double kappa(double z, double lambda) const { if (z >= 0.0) return 0.05; return 1.0; }
 
   // Speed of sound (m/s)
   virtual double vs(double z) const { return 17520.0; }
 
   // Photoelastic constants
-  virtual double dndeta(double z) const { return 100; }
-  virtual double dkappadeta(double z) const { return 0; }
+  virtual double dndeta(double z, double lambda) const { return 100; }
+  virtual double dkappadeta(double z, double lambda) const { return 0; }
 
   capping_layer cap_layer;
 };
