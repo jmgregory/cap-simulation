@@ -1,6 +1,11 @@
 #ifndef JMG_CAP_MATERIAL
 #define JMG_CAP_MATERIAL
 
+#include <iostream>
+#include <string>
+
+using namespace std;
+
 const double pi = 3.1415926535897932384626;
 
 struct laser_beam
@@ -70,6 +75,8 @@ public:
   // Photoelastic constants
   virtual double dndeta(double z, double lambda) const { return 100; }
   virtual double dkappadeta(double z, double lambda) const { return 0; }
+
+  virtual void print_parameters(ostream & out = cout, string tag = "") const { }
 
   capping_layer cap_layer;
 };
