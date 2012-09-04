@@ -89,6 +89,13 @@ double cap_simulation::RR(double t)
   return out;
 }
 
+double sgn(double d)
+{
+  if (d > 0) return 1.0;
+  else if (d < 0) return -1.0;
+  return 0.0;
+}
+
 double cap_simulation::strain(double time_delay, double z) const
 {
   if (time_delay < 0) return 0;
@@ -147,8 +154,8 @@ cap_simulation::~cap_simulation()
   if (material_needs_destroyed) delete material;
 }
 
-complex cap_index(double z)
+complex <double> cap_index(double z)
 {
   //cerr << "---- " << z << '\t' << current_sim->n(current_sim->current_time, z) << endl;
-  return complex(current_sim->n(current_sim->current_time, z), current_sim->k(current_sim->current_time, z));
+  return complex <double> (current_sim->n(current_sim->current_time, z), current_sim->k(current_sim->current_time, z));
 }

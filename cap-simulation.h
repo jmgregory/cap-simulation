@@ -57,7 +57,7 @@ private:
   double strain(double z, double td) const;
 };
 
-complex cap_index(double z);
+complex <double> cap_index(double z);
 double abs(double x);
 
 #endif

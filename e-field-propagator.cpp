@@ -1,8 +1,15 @@
 #include "e-field-propagator.h"
 
-void slice::setWavenumber(complex n, double wavelength)
+const complex <double> I = complex <double> (0.0, 1.0);
+
+double magsquared(complex <double> z)
 {
-  k = complex(2 * pi * real(n) / wavelength, 2 * pi * imag(n) / wavelength);
+  return z.real() * z.real() + z.imag() * z.imag();
+}
+
+void slice::setWavenumber(complex <double> n, double wavelength)
+{
+  k = complex <double> (2 * pi * real(n) / wavelength, 2 * pi * imag(n) / wavelength);
   lambda = wavelength;
 }
 
@@ -22,7 +29,7 @@ e_field_propagator::e_field_propagator()
   initialize(NULL, NULL, this->default_index);
 }
 
-e_field_propagator::e_field_propagator(const cap_material *cm, const laser_beam *laser, complex (*index)(double))
+e_field_propagator::e_field_propagator(const cap_material *cm, const laser_beam *laser, complex <double> (*index)(double))
 {
   slices = newslices = NULL;
   initialize(cm, laser, index);
@@ -34,17 +41,17 @@ e_field_propagator::~e_field_propagator()
   if (newslices != NULL) free(newslices);
 }
 
-complex e_field_propagator::r(complex k_in, complex k_out) const
+complex <double> e_field_propagator::r(complex <double> k_in, complex <double> k_out) const
 {
   return (k_in - k_out) / (k_in + k_out);
 }
 
-complex e_field_propagator::t(complex k_from, complex k_to) const
+complex <double> e_field_propagator::t(complex <double> k_from, complex <double> k_to) const
 {
-  return 2 * k_from / (k_from + k_to);
+  return 2.0 * k_from / (k_from + k_to);
 }
 
-void e_field_propagator::initialize(const cap_material *cm, const laser_beam *laser, complex (*index)(double))
+void e_field_propagator::initialize(const cap_material *cm, const laser_beam *laser, complex <double> (*index)(double))
 {
   if (laser == NULL)
     {
@@ -144,7 +151,7 @@ double e_field_propagator::run()
   double total_flux = 1.0;
   double time = 0.0;
   double pulse_center = pulse_fwhm * 3;
-  complex propagator;
+  complex <double> propagator;
   slice * temp;
   i_flux = r_flux = 0.0;
   while (total_flux >= max_total_flux / 1000)
@@ -201,7 +208,7 @@ double e_field_propagator::run()
   return r_flux / i_flux;
 }
 
-complex e_field_propagator::default_index(double z)
+complex <double> e_field_propagator::default_index(double z)
 {
   if (z < 0.0) return 1.0;
   return 2.0;
