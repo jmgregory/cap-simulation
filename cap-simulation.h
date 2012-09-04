@@ -2,7 +2,6 @@
 #define JMG_CAP_SIMULATION_H
 
 #include <iostream>
-#include <map>
 #include <vector>
 #include <string>
 #include "cap-material.h"

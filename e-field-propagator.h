@@ -2,7 +2,6 @@
 #define JMG_E_FIELD_PROPAGATOR
 
 #include <cstdlib>
-#include <map>
 #include <complex>
 #include "cap-material.h"
 
