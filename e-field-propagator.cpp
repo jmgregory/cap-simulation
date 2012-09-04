@@ -80,6 +80,7 @@ void e_field_propagator::initialize(const cap_material *cm, const laser_beam *la
       // Need at least 1nm resolution to properly sample the strain wave
       if (resolution > 1e-9) resolution = 1e-9;
     }
+  resolution = 5e-9;
 
   if (slices != NULL)
     {
@@ -124,6 +125,16 @@ void e_field_propagator::initialize(const cap_material *cm, const laser_beam *la
       slices[i].setWavenumber(index(slices[i].z), wavelength);
       newslices[i] = slices[i];
     }
+  complex <double> preterm = exp(-I*omega*timestep);
+  for (int i = 1; i < slicecount - 1; i++)
+    {
+      slices[i].tr = t(slices[i-1].k, slices[i].k);
+      slices[i].tl = t(slices[i+1].k, slices[i].k);
+      slices[i].rr = r(slices[i].k, slices[i-1].k);
+      slices[i].rl = r(slices[i].k, slices[i+1].k);
+      slices[i].propagator = preterm * exp(I * slices[i].k * (slices[i+1].z - slices[i].z));
+      newslices[i] = slices[i];
+    }
 }
 
 void e_field_propagator::clear_fields()
@@ -152,6 +163,7 @@ double e_field_propagator::run()
   double time = 0.0;
   double pulse_center = pulse_fwhm * 3;
   complex <double> propagator;
+  complex <double> preterm = exp(-I*omega*timestep);
   slice * temp;
   i_flux = r_flux = 0.0;
   while (total_flux >= max_total_flux / 1000)
@@ -164,7 +176,7 @@ double e_field_propagator::run()
 	      newslices[i].Er = exp(-I*omega*time) * exp(-(time-pulse_center)*(time-pulse_center)/(0.3607*pulse_fwhm*pulse_fwhm));
 	      newslices[i].El = slices[i+1].El * t(slices[i+1].k, slices[i].k) + slices[i].Er * r(slices[i].k, slices[i+1].k);
 	      
-	      propagator = exp(-I * omega * timestep) * exp(I * slices[i].k * (slices[i+1].z - slices[i].z));
+	      propagator = preterm * exp(I * slices[i].k * (slices[i+1].z - slices[i].z));
 	      newslices[i].Er = newslices[i].Er * propagator;
 	      newslices[i].El = newslices[i].El * propagator;
 	    }
@@ -173,18 +185,17 @@ double e_field_propagator::run()
 	      newslices[i].Er = slices[i-1].Er * t(slices[i-1].k, slices[i].k) + slices[i].El * r(slices[i].k, slices[i-1].k);
 	      newslices[i].El = 0;
 	      
-	      propagator = exp(-I * omega * timestep) * exp(I * slices[i].k * (slices[i].z - slices[i-1].z));
+	      propagator = preterm * exp(I * slices[i].k * (slices[i].z - slices[i-1].z));
 	      newslices[i].Er = newslices[i].Er * propagator;
 	      newslices[i].El = newslices[i].El * propagator;
 	    }
 	  else
 	    {
-	      newslices[i].Er = slices[i-1].Er * t(slices[i-1].k, slices[i].k) + slices[i].El * r(slices[i].k, slices[i-1].k);
-	      newslices[i].El = slices[i+1].El * t(slices[i+1].k, slices[i].k) + slices[i].Er * r(slices[i].k, slices[i+1].k);
+	      newslices[i].Er = slices[i-1].Er * slices[i].tr + slices[i].El * slices[i].rr;
+	      newslices[i].El = slices[i+1].El * slices[i].tl + slices[i].Er * slices[i].rl;
 	      
-	      propagator = exp(-I * omega * timestep) * exp(I * slices[i].k * (slices[i+1].z - slices[i].z));
-	      newslices[i].Er = newslices[i].Er * propagator;
-	      newslices[i].El = newslices[i].El * propagator;
+	      newslices[i].Er = newslices[i].Er * slices[i].propagator;
+	      newslices[i].El = newslices[i].El * slices[i].propagator;
 	    }
 	}
 

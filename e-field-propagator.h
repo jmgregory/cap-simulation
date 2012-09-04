@@ -14,6 +14,11 @@ struct slice
   complex <double> El;
   complex <double> Er;
   complex <double> k;
+  complex <double> tl;
+  complex <double> tr;
+  complex <double> rl;
+  complex <double> rr;
+  complex <double> propagator;
   double z;
   double lambda;
 
