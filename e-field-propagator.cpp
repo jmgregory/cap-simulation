@@ -1,4 +1,7 @@
+#include <sstream>
 #include "e-field-propagator.h"
+
+using namespace std;
 
 const complex <double> I = complex <double> (0.0, 1.0);
 
@@ -53,6 +56,7 @@ complex <double> e_field_propagator::t(complex <double> k_from, complex <double>
 
 void e_field_propagator::initialize(const cap_material *cm, const laser_beam *laser, complex <double> (*index)(double))
 {
+  quiet = true;
   if (laser == NULL)
     {
       wavelength = 200e-9;
@@ -80,7 +84,6 @@ void e_field_propagator::initialize(const cap_material *cm, const laser_beam *la
       // Need at least 1nm resolution to properly sample the strain wave
       if (resolution > 1e-9) resolution = 1e-9;
     }
-  resolution = 5e-9;
 
   if (slices != NULL)
     {
@@ -166,6 +169,15 @@ double e_field_propagator::run()
   complex <double> preterm = exp(-I*omega*timestep);
   slice * temp;
   i_flux = r_flux = 0.0;
+  stringstream ss;
+  if (!quiet)
+    {
+      ss.str("");
+      ss.clear();
+      ss << time << '\t';
+      print_slices(cout, ss.str());
+      cout << endl;
+    }
   while (total_flux >= max_total_flux / 1000)
     {
       //cerr << "\r" << int(time / runtime * 100) << "%";
@@ -214,6 +226,15 @@ double e_field_propagator::run()
       r_flux += magsquared(slices[0].El) / (slices[1].z - slices[0].z);
 
       time += timestep;
+
+      if (!quiet)
+	{
+	  ss.str("");
+	  ss.clear();
+	  ss << time << '\t';
+	  print_slices(cout, ss.str());
+	  cout << endl;
+	}
     }
 
   return r_flux / i_flux;
@@ -240,3 +261,17 @@ double e_field_propagator::getResolution() const
   return resolution;
 }
 
+void e_field_propagator::print_slices(ostream & out, string tag) const
+{
+  for (int i = 0; i < slicecount; i++)
+    {
+      out << tag;
+      out << i << '\t';
+      out << slices[i].z << '\t';
+      out << real(slices[i].Er) << '\t';
+      out << real(slices[i].El) << '\t';
+      out << slices[i].n() << '\t';
+      out << slices[i].kappa();
+      out << endl;
+    }
+}

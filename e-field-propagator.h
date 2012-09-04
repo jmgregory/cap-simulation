@@ -42,6 +42,10 @@ class e_field_propagator
   double getTimeStep() const;
   double getResolution() const;
 
+  void print_slices(ostream & out = cout, string tag = "") const;
+
+  bool quiet;
+
  private:
   double resolution;
   double zstart, zstop; // m
