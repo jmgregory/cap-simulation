@@ -35,8 +35,8 @@ int main()
   int time_step_count = (stop_time - start_time) / time_step;
   for (int th = 0; th < NUM_THREADS; th++)
     {
-      t_params[th].start_time = (th * (time_step_count / NUM_THREADS)) * time_step;
-      t_params[th].stop_time = (((th + 1) * (time_step_count / NUM_THREADS)) - 1) * time_step;
+      t_params[th].start_time = start_time + (th * (time_step_count / NUM_THREADS)) * time_step;
+      t_params[th].stop_time = start_time + (((th + 1) * (time_step_count / NUM_THREADS)) - 1) * time_step;
       if (th == NUM_THREADS - 1) t_params[th].stop_time += time_step;
       t_params[th].time_step = time_step;
       t_params[th].id = th;
