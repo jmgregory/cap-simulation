@@ -1,5 +1,6 @@
 #include <iostream>
 #include <pthread.h>
+#include <cstdlib>
 #include "cap-simulation.h"
 
 using namespace std;
@@ -22,7 +23,7 @@ int main()
 {
   double start_time = 0.0;
   double stop_time = 50e-12;
-  double time_step = 0.25e-12;
+  double time_step = 0.15e-12;
 
   pthread_t thread[NUM_THREADS];
   pthread_attr_t attr;
@@ -64,9 +65,6 @@ int main()
       print_data(*(t_params[th].output));
     }
 
-  //e_field_propagator efp;
-  //  cout << efp.run() << endl;
-
   return 0;
 }
 
@@ -78,10 +76,6 @@ void * proxy_function(void * t_params)
     {
       mySim.print_parameters(cerr);
       mySim.print_parameters(cout, "# ");
-    }
-  else
-    {
-      mySim.quiet = true;
     }
   vector <cap_point> data = mySim.run(params->start_time, params->stop_time, params->time_step);
   params->output = new vector <cap_point> (data);

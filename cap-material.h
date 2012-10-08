@@ -6,7 +6,9 @@
 
 using namespace std;
 
-const double pi = 3.1415926535897932384626;
+#ifndef pi
+#define pi 3.1415926535897932384626
+#endif
 
 struct laser_beam
 {
@@ -67,7 +69,7 @@ public:
   virtual double n(double z, double lambda) const { if (z >= 0.0) return 2.4; return 1.0; }
 
   // Imaginary index of refraction
-  virtual double kappa(double z, double lambda) const { if (z >= 0.0) return 0.05; return 1.0; }
+  virtual double kappa(double z, double lambda) const { if (z >= 0.0) return 0.05; return 0.0; }
 
   // Speed of sound (m/s)
   virtual double vs(double z) const { return 17520.0; }

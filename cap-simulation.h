@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 #include "cap-material.h"
-#include "e-field-propagator.h"
+#include "characteristic_matrix.h"
 
 using namespace std;
 
@@ -27,9 +27,9 @@ struct cap_point
 class cap_simulation
 {
 public:
-  cap_simulation();
-  cap_simulation(cap_material *mat);
-  cap_simulation(cap_material *mat, laser_beam *l);
+  cap_simulation(double zres = 1e-10);
+  cap_simulation(cap_material *mat, double zres = 1e-10);
+  cap_simulation(cap_material *mat, laser_beam *l, double zres = 1e-10);
   ~cap_simulation();
 
   vector <cap_point> run(double td_stop, double td_step);
@@ -38,25 +38,19 @@ public:
   void print_parameters(ostream & out = cout, string tag = "") const;
   void set_material(cap_material *mat);
 
-  // Set to true to disable progress output
-  bool quiet;
-
-  double n(double z, double td) const;
-  double k(double z, double td) const;
-  double current_time;
-
 private:
   bool material_needs_destroyed;
-  double RR(double t);
-  void init_defaults();
+  double RR(double td);
 
   cap_material *material;
   laser_beam laser;
+  double resolution;
 
-  double strain(double z, double td) const;
+  double n(double td, double z) const;
+  double k(double td, double z) const;
+  double strain(double td, double z) const;
 };
 
-complex <double> cap_index(double z);
 double abs(double x);
 
 #endif

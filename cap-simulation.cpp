@@ -14,6 +14,8 @@ void cap_simulation::print_parameters(ostream & out, string tag) const
 {
   out << tag << "CAP Simulation: Parameters" << endl;
   out << tag << "==========================" << endl;
+  out << tag << "  Depth sampling resolution: " << resolution * 1e9 << " nm" << endl;
+  out << tag << endl;
   out << tag << "  Laser Beam" << endl;
   out << tag << "  ---------------------" << endl;
   out << tag << "       Repetition rate: " << laser.rep_rate << " Hz" << endl;
@@ -31,14 +33,6 @@ void cap_simulation::print_parameters(ostream & out, string tag) const
   out << tag << "                 Poisson's ratio: " << material->cap_layer.nu << endl;
   out << tag << "    Linear expansion coefficient: " << material->cap_layer.beta << endl;
   out << tag << endl;
-  out << tag << "  Simulation" << endl;
-  out << tag << "  ---------------------" << endl;
-  current_sim = (cap_simulation *)this;
-  e_field_propagator efp(material, &laser, cap_index);
-  out << tag << "            Resolution: " << efp.getResolution() * 1e9 << " nm" << endl;
-  out << tag << "             Time step: " << efp.getTimeStep() * 1e15 << " fs" << endl;
-  out << tag << "    Number of z-slices: " << efp.getSliceCount() << endl;
-  out << tag << endl;
   out << tag << "  Material" << endl;
   out << tag << "  ------------------------------- " << endl;
   out << tag << "       Maximum interesting depth: " << material->max_interesting_depth() * 1e9 << " nm" << endl;
@@ -53,40 +47,54 @@ vector <cap_point> cap_simulation::run(double td_stop, double td_step)
 
 vector <cap_point> cap_simulation::run(double td_start, double td_stop, double td_step)
 {
-  if (!quiet) cerr << "Calculating R_0...";
-  int sec1 = time(NULL);
   double R0 = RR(-1);
   if (R0 == 0.0)
     {
       cerr << "Warning: R0 was calculated to be zero!  All CAP points will be INF." << endl;
     }
-  int sec2 = time(NULL);
-  if (!quiet) cerr << "done." << endl;
-  if (!quiet) cerr << "Estimated calculating time: " << int(((sec2 - sec1) * (td_stop - td_start) / td_step) / 60) << " minute(s)" << endl;
-
   vector <cap_point> out;
-  
   for (double t = td_start; t <= td_stop; t += td_step)
     {
-      if (!quiet) cerr << "\r" << int((t - td_start)/td_stop*100) << "%";
       out.push_back(cap_point(t, (RR(t) - R0)/R0));
     }
-  if (!quiet) cerr << "\rDone!" << endl;
-
   return out;
 }
 
-double cap_simulation::RR(double t)
+double cap_simulation::RR(double td)
 {
-  current_sim = this;
-  current_time = t;
-  e_field_propagator efp(material, &laser, cap_index);
-  double out = efp.run();
-  if (isinf(out) || isnan(out))
+  vector <characteristic_matrix> matrices;
+  complex <double> thisIndex;
+  int identical_layers = 0;
+  matrices.push_back(characteristic_matrix(n(-1, -resolution), k(-1, -resolution), resolution, laser.probe_wavelength));
+
+  for (double z = 0.0; z < material->max_interesting_depth(); z += resolution)
     {
-      cerr << "Warning: e_field_propagator returned INF or NAN.  Consider increasing resolution." << endl;
+      thisIndex = complex <double> (n(td, z), k(td, z));
+      if (thisIndex == matrices[matrices.size()-1].get_index())
+	{
+	  identical_layers++;
+	}
+      else
+	{
+	  if (identical_layers != 0)
+	    {
+	      matrices[matrices.size()-1].set_thickness(matrices[matrices.size()-1].get_thickness() + (resolution * identical_layers));
+	      identical_layers = 0;
+	    }
+	  matrices.push_back(characteristic_matrix(thisIndex, resolution, laser.probe_wavelength));
+	}
     }
-  return out;
+  if (identical_layers != 0)
+    {
+      matrices[matrices.size()-1].set_thickness(matrices[matrices.size()-1].get_thickness() + (resolution * identical_layers));
+    }
+  characteristic_matrix myCM = matrices[0];
+  for(unsigned int i = 0; i < matrices.size(); i++)
+    {
+      myCM *= matrices[i];
+    }
+  return myCM.reflectivity(complex <double> (n(-1, resolution), k(-1, -resolution)),
+			   complex <double> (n(-1, material->max_interesting_depth()), k(-1, material->max_interesting_depth())));
 }
 
 double sgn(double d)
@@ -108,42 +116,53 @@ double cap_simulation::strain(double time_delay, double z) const
 
 double cap_simulation::n(double td, double z) const
 {
-  //cerr << "-- " << z << '\t' << material->n(z) << endl;
-  return material->n(z, laser.probe_wavelength) + strain(td, z) * material->dndeta(z, laser.probe_wavelength);
+  double thisStrain = strain(td, z);
+  if (thisStrain == 0.0)
+    {
+      return material->n(z, laser.probe_wavelength);
+    }
+  else
+    {
+      return material->n(z, laser.probe_wavelength) + thisStrain * material->dndeta(z, laser.probe_wavelength);
+    }
 }
 
 double cap_simulation::k(double td, double z) const
 {
-  return material->kappa(z, laser.probe_wavelength) + strain(td, z) * material->dkappadeta(z, laser.probe_wavelength);
+  double thisStrain = strain(td, z);
+  if (thisStrain == 0.0)
+    {
+      return material->kappa(z, laser.probe_wavelength);
+    }
+  else
+    {
+      return material->kappa(z, laser.probe_wavelength) + thisStrain * material->dndeta(z, laser.probe_wavelength);
+    }
 }
 
 void cap_simulation::set_material(cap_material *mat)
 {
   material = mat;
+  if (resolution >= mat->smallest_feature()) resolution = mat->smallest_feature();
 }
 
-void cap_simulation::init_defaults()
+cap_simulation::cap_simulation(double zres)
 {
-  quiet = false;
-}
-
-cap_simulation::cap_simulation()
-{ 
-  init_defaults();
+  resolution = zres;
   set_material(new cap_material());
   material_needs_destroyed = true;
 }
 
-cap_simulation::cap_simulation(cap_material *mat)
+cap_simulation::cap_simulation(cap_material *mat, double zres)
 {
-  init_defaults();
+  resolution = zres;
   set_material(mat);
   material_needs_destroyed = false;
 }
 
-cap_simulation::cap_simulation(cap_material *mat, laser_beam *l)
+cap_simulation::cap_simulation(cap_material *mat, laser_beam *l, double zres)
 {
-  init_defaults();
+  resolution = zres;
   laser = *l;
   set_material(mat);
   material_needs_destroyed = false;
@@ -152,10 +171,4 @@ cap_simulation::cap_simulation(cap_material *mat, laser_beam *l)
 cap_simulation::~cap_simulation()
 {
   if (material_needs_destroyed) delete material;
-}
-
-complex <double> cap_index(double z)
-{
-  //cerr << "---- " << z << '\t' << current_sim->n(current_sim->current_time, z) << endl;
-  return complex <double> (current_sim->n(current_sim->current_time, z), current_sim->k(current_sim->current_time, z));
 }
