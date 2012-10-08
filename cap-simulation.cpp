@@ -81,6 +81,7 @@ double cap_simulation::RR(double td)
 	      matrices[matrices.size()-1].set_thickness(matrices[matrices.size()-1].get_thickness() + (resolution * identical_layers));
 	      identical_layers = 0;
 	    }
+	  // TODO: Multiply thickness by strain in each layer
 	  matrices.push_back(characteristic_matrix(thisIndex, resolution, laser.probe_wavelength));
 	}
     }
@@ -89,10 +90,15 @@ double cap_simulation::RR(double td)
       matrices[matrices.size()-1].set_thickness(matrices[matrices.size()-1].get_thickness() + (resolution * identical_layers));
     }
   characteristic_matrix myCM = matrices[0];
+  //double z = -resolution;
   for(unsigned int i = 0; i < matrices.size(); i++)
     {
+      //if (td > 0) cout << z << '\t' << matrices[i].get_n() << '\t' << matrices[i].get_k() << endl;
+      //z += matrices[i].get_thickness();
       myCM *= matrices[i];
     }
+  //if (td > 0) cout << z << '\t' << matrices[matrices.size()-1].get_n() << '\t' << matrices[matrices.size()-1].get_k() << endl;
+  //if (td > 0) cout << endl << endl;
   return myCM.reflectivity(complex <double> (n(-1, resolution), k(-1, -resolution)),
 			   complex <double> (n(-1, material->max_interesting_depth()), k(-1, material->max_interesting_depth())));
 }
