@@ -3,15 +3,12 @@
 
 class CharacteristicMatrixTestSuite : public Test::Suite {
 public:
-  CharacteristicMatrixTestSuite() {
-    
-  }
-
-  
-}
+  CharacteristicMatrixTestSuite() {}
+};
 
 int main()
 {
+  Test::TextOutput output(Test::TextOutput::Verbose);
   CharacteristicMatrixTestSuite ts;
-  return ts.run();
+  return ts.run(output) ? 0 : 1;
 }
