@@ -4,8 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "cap-material.h"
-#include "characteristic_matrix.h"
+#include "CapMaterial.h"
+#include "CharacteristicMatrix.h"
 
 using namespace std;
 
@@ -28,22 +28,22 @@ class cap_simulation
 {
 public:
   cap_simulation(double zres = 1e-10);
-  cap_simulation(cap_material *mat, double zres = 1e-10);
-  cap_simulation(cap_material *mat, laser_beam *l, double zres = 1e-10);
+  cap_simulation(CapMaterial *mat, double zres = 1e-10);
+  cap_simulation(CapMaterial *mat, LaserBeam *l, double zres = 1e-10);
   ~cap_simulation();
 
   vector <cap_point> run(double td_stop, double td_step);
   vector <cap_point> run(double td_start, double td_stop, double td_step);
 
   void print_parameters(ostream & out = cout, string tag = "") const;
-  void set_material(cap_material *mat);
+  void set_material(CapMaterial *mat);
 
 private:
   bool material_needs_destroyed;
   double RR(double td);
 
-  cap_material *material;
-  laser_beam laser;
+  CapMaterial *material;
+  LaserBeam laser;
   double resolution;
 
   double n(double td, double z) const;

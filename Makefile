@@ -1,14 +1,19 @@
-cap-sim: main.cpp cap-simulation.o characteristic_matrix.o
-	g++ -O3 -Wall main.cpp cap-simulation.o characteristic_matrix.o -o cap-sim
+cap-sim: main.cpp CapSimulation.o CharacteristicMatrix.o
+	g++ -O3 -Wall main.cpp CapSimulation.o CharacteristicMatrix.o -o cap-sim
 
-cap-simulation.o: cap-simulation.cpp cap-simulation.h characteristic_matrix.h cap-material.h
-	g++ -O3 -Wall -c cap-simulation.cpp -o cap-simulation.o
+CapSimulation.o: CapSimulation.cpp CapSimulation.h CharacteristicMatrix.h CapMaterial.h
+	g++ -O3 -Wall -c CapSimulation.cpp -o CapSimulation.o
 
-characteristic_matrix.o: characteristic_matrix.cpp characteristic_matrix.h
-	g++ -O3 -Wall -c characteristic_matrix.cpp -o characteristic_matrix.o
+CharacteristicMatrix.o: CharacteristicMatrix.cpp CharacteristicMatrix.h
+	g++ -O3 -Wall -c CharacteristicMatrix.cpp -o CharacteristicMatrix.o
 
 .PHONY: clean
 clean:
-	-rm *~
-	-rm *.o
-	-rm cap-sim
+	@-rm *~
+	@-rm *.o
+	@-rm cap-sim
+	@cd test && make clean
+
+.PHONY: test
+test: cap-sim
+	@cd test && make QUIET=yes

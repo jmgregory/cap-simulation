@@ -1,7 +1,7 @@
 #include <iostream>
 #include <pthread.h>
 #include <cstdlib>
-#include "cap-simulation.h"
+#include "CapSimulation.h"
 
 using namespace std;
 

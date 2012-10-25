@@ -10,11 +10,11 @@ using namespace std;
 #define pi 3.1415926535897932384626
 #endif
 
-struct laser_beam
+struct LaserBeam
 {
-  laser_beam()
+  LaserBeam()
     : probe_wavelength(400e-9), pump_diameter(100e-6), pump_power(300e-3), rep_rate(76e6), time_width(150e-15) {}
-  laser_beam(double lambda, double d, double P, double Hz, double tw)
+  LaserBeam(double lambda, double d, double P, double Hz, double tw)
     : probe_wavelength(lambda), pump_diameter(d), pump_power(P), rep_rate(Hz), time_width(tw) {}
 
   double probe_wavelength; // m
@@ -27,11 +27,11 @@ struct laser_beam
   double A() const { return pi*0.25*pump_diameter*pump_diameter; }
 };
 
-struct capping_layer
+struct TransducingLayer
 {
-  capping_layer()
+  TransducingLayer()
     :R(0.0), zeta(7.6e-9), C(0.91), rho(2.70), nu(0.334), beta(23e-6) {}
-  capping_layer(double reflectivity, double abs_length, double heat_cap, double density, double poisson, double expansion_coeff)
+  TransducingLayer(double reflectivity, double abs_length, double heat_cap, double density, double poisson, double expansion_coeff)
     :R(reflectivity), zeta(abs_length), C(heat_cap), rho(density), nu(poisson), beta(expansion_coeff) {}
 
   // Reflectivity
@@ -56,7 +56,7 @@ struct capping_layer
 };
 
 // Create a subclass of this class for specific systems
-class cap_material
+class CapMaterial
 {
 public:
   // The smallest interesting feature (determines simulation resolution)
@@ -80,7 +80,7 @@ public:
 
   virtual void print_parameters(ostream & out = cout, string tag = "") const { }
 
-  capping_layer cap_layer;
+  TransducingLayer cap_layer;
 };
 
 #endif

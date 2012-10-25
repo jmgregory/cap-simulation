@@ -1,4 +1,4 @@
-#include "cap-simulation.h"
+#include "CapSimulation.h"
 #include <cmath>
 
 using namespace std;
@@ -62,10 +62,10 @@ vector <cap_point> cap_simulation::run(double td_start, double td_stop, double t
 
 double cap_simulation::RR(double td)
 {
-  vector <characteristic_matrix> matrices;
+  vector <CharacteristicMatrix> matrices;
   complex <double> thisIndex;
   int identical_layers = 0;
-  matrices.push_back(characteristic_matrix(n(-1, -resolution), k(-1, -resolution), resolution, laser.probe_wavelength));
+  matrices.push_back(CharacteristicMatrix(n(-1, -resolution), k(-1, -resolution), resolution, laser.probe_wavelength));
 
   for (double z = 0.0; z < material->max_interesting_depth(); z += resolution)
     {
@@ -82,14 +82,14 @@ double cap_simulation::RR(double td)
 	      identical_layers = 0;
 	    }
 	  // TODO: Multiply thickness by strain in each layer
-	  matrices.push_back(characteristic_matrix(thisIndex, resolution, laser.probe_wavelength));
+	  matrices.push_back(CharacteristicMatrix(thisIndex, resolution, laser.probe_wavelength));
 	}
     }
   if (identical_layers != 0)
     {
       matrices[matrices.size()-1].set_thickness(matrices[matrices.size()-1].get_thickness() + (resolution * identical_layers));
     }
-  characteristic_matrix myCM = matrices[0];
+  CharacteristicMatrix myCM = matrices[0];
   //double z = -resolution;
   for(unsigned int i = 0; i < matrices.size(); i++)
     {
@@ -146,7 +146,7 @@ double cap_simulation::k(double td, double z) const
     }
 }
 
-void cap_simulation::set_material(cap_material *mat)
+void cap_simulation::set_material(CapMaterial *mat)
 {
   material = mat;
   if (resolution >= mat->smallest_feature()) resolution = mat->smallest_feature();
@@ -155,18 +155,18 @@ void cap_simulation::set_material(cap_material *mat)
 cap_simulation::cap_simulation(double zres)
 {
   resolution = zres;
-  set_material(new cap_material());
+  set_material(new CapMaterial());
   material_needs_destroyed = true;
 }
 
-cap_simulation::cap_simulation(cap_material *mat, double zres)
+cap_simulation::cap_simulation(CapMaterial *mat, double zres)
 {
   resolution = zres;
   set_material(mat);
   material_needs_destroyed = false;
 }
 
-cap_simulation::cap_simulation(cap_material *mat, laser_beam *l, double zres)
+cap_simulation::cap_simulation(CapMaterial *mat, LaserBeam *l, double zres)
 {
   resolution = zres;
   laser = *l;
