@@ -6,6 +6,8 @@
 #include <string>
 #include "CapMaterial.h"
 #include "CharacteristicMatrix.h"
+#include "LaserBeam.h"
+#include "TransducingLayer.h"
 
 using namespace std;
 

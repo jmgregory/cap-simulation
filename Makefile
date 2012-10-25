@@ -1,11 +1,14 @@
-cap-sim: main.cpp CapSimulation.o CharacteristicMatrix.o
-	g++ -O3 -Wall main.cpp CapSimulation.o CharacteristicMatrix.o -o cap-sim
+OBJECTS=TransducingLayer.o CharacteristicMatrix.o CapSimulation.o
+CPPFLAGS=-O3 -Wall
 
-CapSimulation.o: CapSimulation.cpp CapSimulation.h CharacteristicMatrix.h CapMaterial.h
-	g++ -O3 -Wall -c CapSimulation.cpp -o CapSimulation.o
+cap-sim: main.cpp $(OBJECTS)
+	g++ $(CPPFLAGS) $^ -o $@
 
-CharacteristicMatrix.o: CharacteristicMatrix.cpp CharacteristicMatrix.h
-	g++ -O3 -Wall -c CharacteristicMatrix.cpp -o CharacteristicMatrix.o
+CapSimulation.o: CapSimulation.cpp CapSimulation.h CharacteristicMatrix.h CapMaterial.h LaserBeam.h TransducingLayer.h
+	g++ $(CPPFLAGS) -c $< -o $@
+
+%.o: %.cpp %.h
+	g++ $(CPPFLAGS) -c $< -o $@
 
 .PHONY: clean
 clean:

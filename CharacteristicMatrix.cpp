@@ -2,19 +2,11 @@
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <assert.h>
 
 using namespace std;
 
-Matrix Matrix::identity_matrix = Matrix(1, 0, 0, 1);
-
-Matrix::Matrix()
-{
-  a = b = c = d = 0.0;
-}
-
-Matrix::Matrix(complex <double> A, complex <double> B, complex <double> C, complex <double> D)
-  : a(A), b(B), c(C), d(D)
-{ }
+const Matrix Matrix::identity_matrix = Matrix(1, 0, 0, 1);
 
 Matrix Matrix::invert() const
 {
@@ -108,31 +100,31 @@ ostream & operator << (ostream & lhs, const Matrix & rhs)
 
 CharacteristicMatrix::CharacteristicMatrix()
 {
-  isHomogeneous = true;
-  n = 1.0;
-  k = 0.0;
-  thickness = 1e-9;
-  wavelength = 400e-9;
+  _is_homogeneous = true;
+  _n = 1.0;
+  _k = 0.0;
+  _thickness = 1e-9;
+  _wavelength = 400e-9;
   evaluate_homogeneous();
 }
 
-CharacteristicMatrix::CharacteristicMatrix(double N, double K, double D, double lambda)
+CharacteristicMatrix::CharacteristicMatrix(double n, double k, double thickness, double wavelength)
 {
-  isHomogeneous = true;
-  n = N;
-  k = K;
-  thickness = D;
-  wavelength = lambda;
+  _is_homogeneous = true;
+  _n = n;
+  _k = k;
+  _thickness = thickness;
+  _wavelength = wavelength;
   evaluate_homogeneous();
 }
 
-CharacteristicMatrix::CharacteristicMatrix(complex <double> index, double D, double lambda)
+CharacteristicMatrix::CharacteristicMatrix(complex <double> index, double thickness, double wavelength)
 {
-  isHomogeneous = true;
-  n = real(index);
-  k = imag(index);
-  thickness = D;
-  wavelength = lambda;
+  _is_homogeneous = true;
+  _n = real(index);
+  _k = imag(index);
+  _thickness = thickness;
+  _wavelength = wavelength;
   evaluate_homogeneous();
 }
 
@@ -143,79 +135,57 @@ CharacteristicMatrix operator * (const CharacteristicMatrix & lhs, const Charact
   return temp;
 }
 
-Matrix CharacteristicMatrix::get_matrix() const
+Matrix CharacteristicMatrix::matrix() const
 {
-  return myMatrix;
+  return _matrix;
 }
 
-bool CharacteristicMatrix::is_homogeneous() const
+bool CharacteristicMatrix::IsHomogeneous() const
 {
-  return isHomogeneous;
+  return _is_homogeneous;
 }
 
-complex <double> CharacteristicMatrix::get_index() const
+complex <double> CharacteristicMatrix::index() const
 {
-  return complex <double> (n, k);
+  return complex <double> (_n, _k);
 }
 
-double CharacteristicMatrix::get_n() const
+double CharacteristicMatrix::n() const
 {
-  if (isHomogeneous)
-    {
-      return n;
-    }
-  else
-    {
-      cerr << "Error: tried get_n() on a non-homogeneous characteristic Matrix." << endl;
-      exit(1);
-    }
+  assert(_is_homogeneous);
+  return _n;
 }
 
-double CharacteristicMatrix::get_k() const
+double CharacteristicMatrix::k() const
 {
-  if (isHomogeneous)
-    {
-      return k;
-    }
-  else
-    {
-      cerr << "Error: tried get_k() on a non-homogeneous characteristic Matrix." << endl;
-      exit(1);
-    }  
+  assert(_is_homogeneous);
+  return _k;
 }
 
-double CharacteristicMatrix::get_thickness() const
+double CharacteristicMatrix::thickness() const
 {
-  return thickness;
+  return _thickness;
 }
 
-double CharacteristicMatrix::get_wavelength() const
+double CharacteristicMatrix::wavelength() const
 {
-  return wavelength;
+  return _wavelength;
 }
 
-void CharacteristicMatrix::set_n(double N)
+void CharacteristicMatrix::set_n(double n)
 {
-  set_index(N, k);
+  set_index(n, _k);
 }
 
-void CharacteristicMatrix::set_k(double K)
+void CharacteristicMatrix::set_k(double k)
 {
-  set_index(n, K);
+  set_index(_n, k);
 }
 
-void CharacteristicMatrix::set_thickness(double D)
+void CharacteristicMatrix::set_thickness(double thickness)
 {
-  if (isHomogeneous)
-    {
-      thickness = D;
-      evaluate_homogeneous();
-    }
-  else
-    {
-      cerr << "Error: tried set_thickness() on a non-homogeneous characteristic Matrix." << endl;
-      exit(1);
-    }  
+  assert(_is_homogeneous);
+  _thickness = thickness;
 }
 
 void CharacteristicMatrix::set_index(complex <double> index)
@@ -223,65 +193,49 @@ void CharacteristicMatrix::set_index(complex <double> index)
   set_index(real(index), imag(index));
 }
 
-void CharacteristicMatrix::set_index(double N, double K)
+void CharacteristicMatrix::set_index(double n, double k)
 {
-  if (isHomogeneous)
-    {
-      n = N;
-      k = K;
-      evaluate_homogeneous();
-    }
-  else
-    {
-      cerr << "Error: tried set_index() on a non-homogeneous characteristic Matrix." << endl;
-      exit(1);
-    }  
+  assert(_is_homogeneous);
+  _n = n;
+  _k = k;
 }
 
 void CharacteristicMatrix::evaluate_homogeneous()
 {
-  if (!isHomogeneous)
-    {
-      cerr << "Error: tried to evaluate the members of a non-homogenous characteristic Matrix." << endl;
-      exit(1);
-    }
+  assert(_is_homogeneous);
   complex <double> I(0, 1);
-  complex <double> k_n = 2 * pi * get_index() / wavelength;
-  Matrix Mn(1, 1, k_n, -k_n);
-  Matrix Qn(exp(I*k_n*thickness), 0, 0, exp(-I*k_n*thickness));
-  myMatrix = Mn * Qn.invert() * Mn.invert();
+  complex <double> k_n = 2 * pi * index() / _wavelength;
+  Matrix Mn(1.0, 1.0, k_n, -k_n);
+  Matrix Qn(exp(I * k_n * _thickness), 0.0, 0.0, exp(-I * k_n * _thickness));
+  _matrix = Mn * Qn.invert() * Mn.invert();
 }
 
 CharacteristicMatrix & CharacteristicMatrix::operator *= (const CharacteristicMatrix & rhs)
 {
-  if (wavelength != rhs.get_wavelength())
-    {
-      cerr << "Warning: multiplying two characteristic matrices with different wavelengths: ";
-      cerr << wavelength << " != " << rhs.get_wavelength() << endl;
-    }
-  myMatrix = (myMatrix * rhs.get_matrix());
-  isHomogeneous = false;
-  n = -1;
-  k = -1;
-  thickness += rhs.get_thickness();
+  assert(_wavelength == rhs.wavelength());
+  _matrix = (_matrix * rhs.matrix());
+  _is_homogeneous = false;
+  _n = -1;
+  _k = -1;
+  _thickness += rhs.thickness();
   return *this;
 }
 
-double CharacteristicMatrix::reflectivity(complex <double> index_before, complex <double> index_after) const
+double CharacteristicMatrix::ReflectivityInEnvironment(complex <double> index_before, complex <double> index_after) const
 {
-  Matrix M0(1, 1, 2*pi*index_before/wavelength, -2*pi*index_before/wavelength);
-  Matrix Ma(1, 1, 2*pi*index_after/wavelength, -2*pi*index_after/wavelength);
-  Matrix M = M0.invert() * myMatrix * Ma;
+  Matrix M0(1.0, 1.0, 2.0 * pi * index_before / _wavelength, -2.0 * pi * index_before / _wavelength);
+  Matrix Ma(1.0, 1.0, 2.0 * pi * index_after  / _wavelength, -2.0 * pi * index_after  / _wavelength);
+  Matrix M = M0.invert() * _matrix * Ma;
 
   complex <double> b0 = M.c / M.a;
   return real(b0) * real(b0) + imag(b0) * imag(b0);
 }
 
-double CharacteristicMatrix::transmission(complex <double> index_before, complex <double> index_after) const
+double CharacteristicMatrix::TransmissionInEnvironment(complex <double> index_before, complex <double> index_after) const
 {
-  Matrix M0(1, 1, 2*pi*index_before/wavelength, -2*pi*index_before/wavelength);
-  Matrix Ma(1, 1, 2*pi*index_after/wavelength, -2*pi*index_after/wavelength);
-  Matrix M = M0.invert() * myMatrix * Ma;
+  Matrix M0(1.0, 1.0, 2.0 * pi * index_before / _wavelength, -2.0 * pi * index_before / _wavelength);
+  Matrix Ma(1.0, 1.0, 2.0 * pi * index_after  / _wavelength, -2.0 * pi * index_after  / _wavelength);
+  Matrix M = M0.invert() * _matrix * Ma;
 
   complex <double> a1 = 1.0 / M.a;
   return real(a1) * real(a1) + imag(a1) * imag(a1);
