@@ -1,10 +1,15 @@
+my_tests:=$(patsubst %.cpp,%,$(wildcard *Test.cpp))
+
 TESTLIBS=-lcpptest
 
 .PHONY: test-all
-test-all: CharacteristicMatrixTest
+test-all: $(my_tests)
 
-.PHONY: CharacteristicMatrixTest
-CharacteristicMatrixTest: CharacteristicMatrixTest.cpp
-	g++ $(TESTLIBS) -o CharacteristicMatrixTest CharacteristicMatrixTest.cpp ../CharacteristicMatrix.cpp
-	-./CharacteristicMatrixTest
-	-rm ./CharacteristicMatrixTest
+%Test: %Test.cpp ../%.cpp
+	@g++ $(TESTLIBS) -o $@ $^
+	-@./$@
+	-@rm ./$@
+
+.PHONY: clean
+clean:
+	-rm *~
