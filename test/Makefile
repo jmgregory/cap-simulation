@@ -14,11 +14,14 @@ stdafx.h.gch: stdafx.h
 	@g++ $(CPPFLAGS) -o $@ -c $^
 
 %Test: %Test.cpp main.cpp ../%.cpp ../%.h
+	@echo Building $@...
 	@g++ -include stdafx.h $(CPPFLAGS) $(LIBS) -o $@ $^
 
 .PHONY: %TestRun
 %TestRun: %Test
+	@echo Running $<...
 	@./$<
+	@echo
 
 .PHONY: clean
 clean:
