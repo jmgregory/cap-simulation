@@ -22,5 +22,5 @@ clean:
 	@cd test && make clean
 
 .PHONY: test
-test:
+test: cap-sim
 	@cd test && make
