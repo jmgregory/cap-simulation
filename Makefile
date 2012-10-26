@@ -20,6 +20,7 @@ clean:
 	@-rm cap-sim
 	@-rm stdafx.h.gch
 	@cd test && make clean
+	@-rm \#*\#
 
 .PHONY: test
 test: cap-sim
