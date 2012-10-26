@@ -1,18 +1,22 @@
 #include <UnitTest++.h>
 #include <complex>
+#include <sstream>
 #include "../Matrix.h"
 
 struct MatrixTestFixture
 {
   MatrixTestFixture() 
-    : test_matrix_1(1.0, 2.0, 3.0, 4.0) {}
+    : test_matrix_1(1.0, 2.0, 3.0, 4.0),
+      test_matrix_2(0.5, 4.0, 1.0, 1.5) {}
 
   Matrix test_matrix_1;
+  Matrix test_matrix_2;
 };
 
 TEST(MatrixAssignmentAndEquality)
 {
   Matrix m;
+  CHECK(m == m);
   CHECK_EQUAL(m, m);
   Matrix n(m);
   CHECK_EQUAL(m, n);
@@ -56,4 +60,22 @@ TEST_FIXTURE(MatrixTestFixture, DeterminantCalculation)
 TEST_FIXTURE(MatrixTestFixture, ToStringProducesText)
 {
   CHECK(test_matrix_1.ToString().length() != 0);
+}
+
+TEST_FIXTURE(MatrixTestFixture, MatrixMathOperations)
+{
+  CHECK_EQUAL(Matrix(1.5, 6.0, 4.0, 5.5), test_matrix_1 + test_matrix_2);
+  CHECK_EQUAL(Matrix(0.5, -2.0, 2.0, 2.5), test_matrix_1 - test_matrix_2);
+  CHECK_EQUAL(Matrix(2.5, 7.0, 5.5, 18), test_matrix_1 * test_matrix_2);
+  CHECK_EQUAL(Matrix(0.5, 1.0, 1.5, 2.0), test_matrix_1 * 0.5);
+  CHECK_EQUAL(Matrix(0.5, 1.0, 1.5, 2.0), 0.5 * test_matrix_1);
+  CHECK_EQUAL(Matrix(0.5, 1.0, 1.5, 2.0), test_matrix_1 / 2.0);
+  CHECK_EQUAL(Matrix(-1.0, -2.0, -3.0, -4.0), -test_matrix_1);
+}
+
+TEST_FIXTURE(MatrixTestFixture, OutputOperatorProducesText)
+{
+  std::stringstream ss;
+  ss << test_matrix_1;
+  CHECK(ss.str().length() > 0);
 }
