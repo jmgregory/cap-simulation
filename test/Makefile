@@ -1,15 +1,23 @@
 my_tests:=$(patsubst %.cpp,%,$(wildcard *Test.cpp))
 
-TESTLIBS=-lcpptest
+LIBS=-lUnitTest++
+CPPFLAGS=-O3 -Wall -I/opt/local/include/UnitTest++ -L/opt/local/lib
+
+.SECONDARY: $(my_tests)
 
 .PHONY: test-all
-test-all: $(my_tests)
+test-all: $(patsubst %,%Run,$(my_tests))
 
-%Test: %Test.cpp ../%.cpp
-	@g++ $(TESTLIBS) -o $@ $^
-	-@./$@
-	-@rm ./$@
+CharacteristicMatrixTest: ../Matrix.cpp ../Matrix.h
+
+%Test: %Test.cpp main.cpp ../%.cpp ../%.h
+	@g++ $(CPPFLAGS) $(LIBS) -o $@ $^
+
+.PHONY: %TestRun
+%TestRun: %Test
+	@./$<
 
 .PHONY: clean
 clean:
-	-rm *~
+	-@rm *~
+	-@rm $(my_tests)

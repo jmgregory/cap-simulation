@@ -1,14 +1,21 @@
-#include <cpptest.h>
+#include <UnitTest++.h>
 #include "../CharacteristicMatrix.h"
 
-class CharacteristicMatrixTestSuite : public Test::Suite {
+class CharacteristicMatrixTestFixture
+{
 public:
-  CharacteristicMatrixTestSuite() {}
+  CharacteristicMatrixTestFixture()
+  {
+
+  }
+
+  ~CharacteristicMatrixTestFixture()
+  {
+
+  }  
 };
 
-int main()
+TEST_FIXTURE(CharacteristicMatrixTestFixture, AlwaysPass)
 {
-  Test::TextOutput output(Test::TextOutput::Verbose);
-  CharacteristicMatrixTestSuite ts;
-  return ts.run(output) ? 0 : 1;
+  CHECK(true);
 }
