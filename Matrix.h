@@ -17,7 +17,7 @@ public:
   Matrix(const complex <double> & A, const complex <double> & B, const complex <double> & C, const complex <double> & D)
     : a(A), b(B), c(C), d(D) {}
   
-  Matrix Invert() const;
+  Matrix Inverted() const;
   complex <double> CalculateDeterminant() const;
   std::string ToString() const;
 

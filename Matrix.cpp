@@ -9,7 +9,7 @@ using std::complex;
 
 const Matrix Matrix::identity_matrix = Matrix(1.0, 0.0, 0.0, 1.0);
 
-Matrix Matrix::Invert() const
+Matrix Matrix::Inverted() const
 {
   Matrix inverted(d, -b, -c, a);
   return inverted / CalculateDeterminant();
