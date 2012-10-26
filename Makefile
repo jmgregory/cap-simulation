@@ -1,11 +1,11 @@
-OBJECTS=TransducingLayer.o CharacteristicMatrix.o CapSimulation.o
+OBJECTS=TransducingLayer.o CharacteristicMatrix.o CapSimulation.o LaserBeam.o Matrix.o
 CPPFLAGS=-O3 -Wall
 
 cap-sim: main.cpp $(OBJECTS)
 	g++ $(CPPFLAGS) $^ -o $@
 
-CapSimulation.o: CapSimulation.cpp CapSimulation.h CharacteristicMatrix.h CapMaterial.h LaserBeam.h TransducingLayer.h
-	g++ $(CPPFLAGS) -c $< -o $@
+CapSimulation.o: CharacteristicMatrix.h DefaultCapMaterial.h LaserBeam.h TransducingLayer.h CapMaterialInterface.h
+CharacteristicMatrix.o: Matrix.h
 
 %.o: %.cpp %.h
 	g++ $(CPPFLAGS) -c $< -o $@
@@ -18,5 +18,5 @@ clean:
 	@cd test && make clean
 
 .PHONY: test
-test: cap-sim
-	@cd test && make QUIET=yes
+test:
+	@cd test && make

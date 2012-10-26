@@ -1,48 +1,43 @@
-#ifndef JMG_CAP_MATERIAL
-#define JMG_CAP_MATERIAL
+#ifndef JMG_DEFAULT_CAP_MATERIAL_H
+#define JMG_DEFAULT_CAP_MATERIAL_H
 
 #include <iostream>
 #include <string>
+#include "CapMaterialInterface.h"
 #include "TransducingLayer.h"
 
-using std::string;
-
-// Create a subclass of this class for specific systems
-class CapMaterial
+class DefaultCapMaterial : public CapMaterialInterface
 {
-public:
-  // The smallest interesting feature (determines simulation resolution)
-  virtual double smallest_feature() const { return 10e-9; }
+ public:  
+  double smallest_feature() const                  { return 10e-9; }
+  double max_interesting_depth() const             { return 2e-6; }
+  double speed_of_sound(double z) const            { return 17520.0; }
+  double dndeta(double z, double lambda) const     { if (z < 0) return 0; else return 100.0; }
+  double dkappadeta(double z, double lambda) const { return 0.0; }
 
-  // The deepest interesting feature
-  virtual double max_interesting_depth() const { return 1e-6; }
-
-  // Real index of refraction
-  virtual double n(double z, double lambda) const 
+  double n(double z, double lambda) const 
   { 
     if (z >= 0.0) return 2.4;
     return 1.0;
   }
 
-  // Imaginary index of refraction
-  virtual double kappa(double z, double lambda) const 
+  double kappa(double z, double lambda) const 
   {
     if (z >= 0.0) return 0.05;
     return 0.0;
   }
 
-  // Speed of sound (m/s)
-  virtual double vs(double z) const { return 17520.0; }
+  // Although this function is not strictly required in this case, it is included
+  // here as an example for other sub-classes.
+  void PrintParameters(std::ostream & out = std::cout, std::string tag = "") const
+  { 
+    CapMaterialInterface::PrintParameters(out, tag);
+  }
 
-  // Photoelastic constants
-  virtual double dndeta(double z, double lambda) const { return 100; }
-  virtual double dkappadeta(double z, double lambda) const { return 0; }
-
-  virtual void print_parameters(std::ostream & out = std::cout, string tag = "") const {}
-
-  virtual ~CapMaterial() {}
-
-  TransducingLayer cap_layer;
+  TransducingLayer transducing_layer() const
+  {
+    return TransducingLayer();
+  }
 };
 
 #endif

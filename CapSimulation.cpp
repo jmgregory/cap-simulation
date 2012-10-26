@@ -1,173 +1,191 @@
-#include "CapSimulation.h"
 #include <cmath>
+#include <assert.h>
+#include "CapSimulation.h"
+#include "DefaultCapMaterial.h"
+#include "CharacteristicMatrix.h"
 
 using namespace std;
 
-cap_simulation *current_sim;
+CapSimulation *current_sim;
 
 double my_abs(double x)
 {
   return (x > 0.0 ? x : -x);
 }
 
-void cap_simulation::print_parameters(ostream & out, string tag) const
+void CapSimulation::PrintParameters(ostream & out, string tag) const
 {
   out << tag << "CAP Simulation: Parameters" << endl;
   out << tag << "==========================" << endl;
-  out << tag << "  Depth sampling resolution: " << resolution * 1e9 << " nm" << endl;
+  out << tag << "  Depth sampling resolution: " << _depth_sampling_resolution * 1e9 << " nm" << endl;
   out << tag << endl;
-  out << tag << "  Laser Beam" << endl;
-  out << tag << "  ---------------------" << endl;
-  out << tag << "       Repetition rate: " << laser.rep_rate() << " Hz" << endl;
-  out << tag << "            Pump power: " << laser.pump_power() << " W" << endl;
-  out << tag << "    Pump spot diameter: " << laser.pump_diameter() * 1e6 << " um" << endl;
-  out << tag << "      Probe wavelength: " << laser.probe_wavelength() * 1e9 << " nm" << endl;
-  out << tag << "      Probe time width: " << laser.time_width() * 1e15 << " fs (FWHM)" << endl;
+  _laser.PrintParameters(out, tag);
   out << tag << endl;
-  material->cap_layer.PrintParameters(out, tag);
-  out << tag << endl;
-  out << tag << "  Material" << endl;
-  out << tag << "  ------------------------------- " << endl;
-  out << tag << "       Maximum interesting depth: " << material->max_interesting_depth() * 1e9 << " nm" << endl;
-  out << tag << "    Smallest interesting feature: " << material->smallest_feature() * 1e9 << " nm" << endl;
-  material->print_parameters(out, tag);
+  _material->PrintParameters(out, tag);
 }
 
-vector <cap_point> cap_simulation::run(double td_stop, double td_step)
+vector <CapPoint> CapSimulation::Run(double stop_time_delay, double time_delay_step)
 {
-  return run(0.0, td_stop, td_step);
+  return Run(0.0, stop_time_delay, time_delay_step);
 }
 
-vector <cap_point> cap_simulation::run(double td_start, double td_stop, double td_step)
+double CapSimulation::CalculateDifferentialReflectivity(double modulated_reflectivity, double baseline_reflectivity) const
 {
-  double R0 = RR(-1);
-  if (R0 == 0.0)
-    {
-      cerr << "Warning: R0 was calculated to be zero!  All CAP points will be INF." << endl;
-    }
-  vector <cap_point> out;
-  for (double t = td_start; t <= td_stop; t += td_step)
-    {
-      out.push_back(cap_point(t, (RR(t) - R0)/R0));
-    }
-  return out;
+  return (modulated_reflectivity - baseline_reflectivity) / baseline_reflectivity;
 }
 
-double cap_simulation::RR(double td)
+vector <CapPoint> CapSimulation::Run(double start_time_delay, double stop_time_delay, double time_delay_step)
+{
+  double unstrained_reflectivity = CalculateUnstrainedReflectivity();
+  vector <CapPoint> result;
+  for (double time_delay = start_time_delay; time_delay <= stop_time_delay; time_delay += time_delay_step)
+    {
+      result.push_back(CapPoint(time_delay,
+				CalculateDifferentialReflectivity(CalculateReflectivityForTimeDelay(time_delay), 
+								  unstrained_reflectivity)));
+    }
+  return result;
+}
+
+double CapSimulation::CalculateUnstrainedReflectivity() const
+{
+  double result = CalculateReflectivityForTimeDelay(-1.0);
+  if (result == 0.0) throw exception(); // If baseline reflectivity is zero, all results will be INF
+  return result;
+}
+
+vector <CharacteristicMatrix> CapSimulation::BuildLayerMatricesList(double time_delay) const
 {
   vector <CharacteristicMatrix> matrices;
-  complex <double> thisIndex;
-  int identical_layers = 0;
-  matrices.push_back(CharacteristicMatrix(n(-1, -resolution), k(-1, -resolution), resolution, laser.probe_wavelength()));
+  complex <double> this_index;
+  int identical_layer_count = 0;
+  matrices.push_back(CharacteristicMatrix(IndexBeforeSpecimen(),
+					  _depth_sampling_resolution, 
+					  _laser.probe_wavelength()));
 
-  for (double z = 0.0; z < material->max_interesting_depth(); z += resolution)
+  for (double depth = 0.0; depth < _material->max_interesting_depth(); depth += _depth_sampling_resolution)
     {
-      thisIndex = complex <double> (n(td, z), k(td, z));
-      if (thisIndex == matrices[matrices.size()-1].index())
+      this_index = CalculateIndexWithStrain(time_delay, depth);
+      if (this_index == matrices[matrices.size()-1].index())
 	{
-	  identical_layers++;
+	  identical_layer_count++;
 	}
       else
 	{
-	  if (identical_layers != 0)
+	  if (identical_layer_count != 0)
 	    {
-	      matrices[matrices.size()-1].set_thickness(matrices[matrices.size()-1].thickness() + (resolution * identical_layers));
-	      identical_layers = 0;
+	      matrices[matrices.size()-1].set_thickness(matrices[matrices.size()-1].thickness() + (_depth_sampling_resolution * identical_layer_count));
+	      identical_layer_count = 0;
 	    }
 	  // TODO: Multiply thickness by strain in each layer
-	  matrices.push_back(CharacteristicMatrix(thisIndex, resolution, laser.probe_wavelength()));
+	  matrices.push_back(CharacteristicMatrix(real(this_index), imag(this_index), _depth_sampling_resolution, _laser.probe_wavelength()));
 	}
     }
-  if (identical_layers != 0)
+  if (identical_layer_count != 0)
     {
-      matrices[matrices.size()-1].set_thickness(matrices[matrices.size()-1].thickness() + (resolution * identical_layers));
+      matrices[matrices.size()-1].set_thickness(matrices[matrices.size()-1].thickness() + (_depth_sampling_resolution * identical_layer_count));
     }
-  CharacteristicMatrix myCM = matrices[0];
-  //double z = -resolution;
-  for(unsigned int i = 0; i < matrices.size(); i++)
-    {
-      //if (td > 0) cout << z << '\t' << matrices[i].n() << '\t' << matrices[i].k() << endl;
-      //z += matrices[i].thickness();
-      myCM *= matrices[i];
-    }
-  //if (td > 0) cout << z << '\t' << matrices[matrices.size()-1].n() << '\t' << matrices[matrices.size()-1].k() << endl;
-  //if (td > 0) cout << endl << endl;
-  return myCM.ReflectivityInEnvironment(complex <double> (n(-1, resolution), k(-1, -resolution)),
-			   complex <double> (n(-1, material->max_interesting_depth()), k(-1, material->max_interesting_depth())));
+  return matrices;
 }
 
-double sgn(double d)
+complex <double> CapSimulation::UnstrainedIndex(double depth) const
 {
-  if (d > 0) return 1.0;
-  else if (d < 0) return -1.0;
+  return CalculateIndexWithStrain(-1.0, depth);
+}
+
+complex <double> CapSimulation::IndexBeforeSpecimen() const
+{
+  return UnstrainedIndex(-_depth_sampling_resolution);
+}
+
+complex <double> CapSimulation::IndexAfterSpecimen() const
+{
+  return UnstrainedIndex(_material->max_interesting_depth());
+}
+
+double CapSimulation::CalculateReflectivityForTimeDelay(double time_delay) const
+{
+  vector <CharacteristicMatrix> matrices = BuildLayerMatricesList(time_delay);
+  CharacteristicMatrix full_specimen = CharacteristicMatrix::MultiplyMatrices(matrices);
+  return full_specimen.ReflectivityInEnvironment(IndexBeforeSpecimen(), IndexAfterSpecimen());
+}
+
+double sgn(double x)
+{
+  if (x > 0) return 1.0;
+  else if (x < 0) return -1.0;
   return 0.0;
 }
 
-double cap_simulation::strain(double time_delay, double z) const
+double CapSimulation::CalculateStrain(double time_delay, double depth) const
 {
-  if (time_delay < 0) return 0;
-  if (z < 0) return 0;
-  double vs = material->vs(z);
-  double zeta = material->cap_layer.absorption_length();
-  double depth = z - vs*time_delay;
-  return material->cap_layer.CalcStrainFactor() * laser.EnergyPerPulse() / laser.PumpSpotArea() * (exp(-z/zeta) - 0.5*(exp(-(z+vs*time_delay)/zeta)) - 0.5*exp(-my_abs(depth)/zeta)*sgn(depth));
+  if (time_delay < 0.0) return 0.0;
+  if (depth < 0.0) return 0.0;
+  double speed_of_sound = _material->speed_of_sound(depth);
+  double absorption_length = _material->transducing_layer().absorption_length();
+  double strain_center_depth = depth - speed_of_sound * time_delay;
+  return _material->transducing_layer().CalculateStrainFactor() * _laser.EnergyPerPulse() / _laser.PumpSpotArea() * (exp(-depth/absorption_length) - 0.5*(exp(-(depth+speed_of_sound*time_delay)/absorption_length)) - 0.5*exp(-my_abs(strain_center_depth)/absorption_length)*sgn(strain_center_depth));
 }
 
-double cap_simulation::n(double td, double z) const
+complex <double> CapSimulation::CalculateIndexWithStrain(double time_delay, double depth) const
 {
-  double thisStrain = strain(td, z);
-  if (thisStrain == 0.0)
+  double strain = CalculateStrain(time_delay, depth);
+  if (strain == 0.0)
     {
-      return material->n(z, laser.probe_wavelength());
+      return complex <double> (_material->n(depth, _laser.probe_wavelength()),
+			       _material->kappa(depth, _laser.probe_wavelength()));
     }
   else
     {
-      return material->n(z, laser.probe_wavelength()) + thisStrain * material->dndeta(z, laser.probe_wavelength());
+      return complex <double> (_material->n(depth, _laser.probe_wavelength())     + strain * _material->dndeta(depth, _laser.probe_wavelength()),
+			       _material->kappa(depth, _laser.probe_wavelength()) + strain * _material->dkappadeta(depth, _laser.probe_wavelength()));  
     }
 }
 
-double cap_simulation::k(double td, double z) const
+void CapSimulation::DestroyMaterialIfNecessary()
 {
-  double thisStrain = strain(td, z);
-  if (thisStrain == 0.0)
+  if (_material_needs_destroyed)
     {
-      return material->kappa(z, laser.probe_wavelength());
+      delete _material;
+      _material_needs_destroyed = false;
+    }  
+}
+
+void CapSimulation::set_material(CapMaterialInterface *material)
+{
+  if (_material == NULL)
+    {
+      _material = new DefaultCapMaterial();
+      _material_needs_destroyed = true;
     }
   else
     {
-      return material->kappa(z, laser.probe_wavelength()) + thisStrain * material->dndeta(z, laser.probe_wavelength());
+      DestroyMaterialIfNecessary();
+      _material = material;
     }
+  if (_depth_sampling_resolution >= _material->smallest_feature()) _depth_sampling_resolution = _material->smallest_feature();
 }
 
-void cap_simulation::set_material(CapMaterial *mat)
+CapSimulation::CapSimulation(double depth_sampling_resolution)
 {
-  material = mat;
-  if (resolution >= mat->smallest_feature()) resolution = mat->smallest_feature();
+  _depth_sampling_resolution = depth_sampling_resolution;
+  set_material(NULL);
 }
 
-cap_simulation::cap_simulation(double zres)
+CapSimulation::CapSimulation(CapMaterialInterface *material, double depth_sampling_resolution)
 {
-  resolution = zres;
-  set_material(new CapMaterial());
-  material_needs_destroyed = true;
+  _depth_sampling_resolution = depth_sampling_resolution;
+  set_material(material);
 }
 
-cap_simulation::cap_simulation(CapMaterial *mat, double zres)
+CapSimulation::CapSimulation(CapMaterialInterface *material, LaserBeam *laser, double depth_sampling_resolution)
 {
-  resolution = zres;
-  set_material(mat);
-  material_needs_destroyed = false;
+  _depth_sampling_resolution = depth_sampling_resolution;
+  _laser = *laser;
+  set_material(material);
 }
 
-cap_simulation::cap_simulation(CapMaterial *mat, LaserBeam *l, double zres)
+CapSimulation::~CapSimulation()
 {
-  resolution = zres;
-  laser = *l;
-  set_material(mat);
-  material_needs_destroyed = false;
-}
-
-cap_simulation::~cap_simulation()
-{
-  if (material_needs_destroyed) delete material;
+  if (_material_needs_destroyed) delete _material;
 }

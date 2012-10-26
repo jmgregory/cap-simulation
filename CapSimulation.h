@@ -4,55 +4,60 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "CapMaterial.h"
-#include "CharacteristicMatrix.h"
+#include <complex>
+#include "CapMaterialInterface.h"
 #include "LaserBeam.h"
 #include "TransducingLayer.h"
+#include "CharacteristicMatrix.h"
 
-using namespace std;
+#define DEFAULT_SAMPLING_RESOLUTION 1e-10
 
-struct cap_point
+using std::complex;
+
+struct CapPoint
 {
-  // time delay (s)
-  double t;
+  double time_delay; // s
 
-  // (R - R0) / R
-  double R;
+  // (R - R0) / R0
+  double reflectivity;
 
-  cap_point()
-    : t(0.0), R(0.0) {}
+  CapPoint()
+    : time_delay(0.0), reflectivity(0.0) {}
 
-  cap_point(double time, double refl)
-    : t(time), R(refl) {}
+  CapPoint(double Time_Delay, double Reflectivity)
+    : time_delay(Time_Delay), reflectivity(Reflectivity) {}
 };
 
-class cap_simulation
+class CapSimulation
 {
 public:
-  cap_simulation(double zres = 1e-10);
-  cap_simulation(CapMaterial *mat, double zres = 1e-10);
-  cap_simulation(CapMaterial *mat, LaserBeam *l, double zres = 1e-10);
-  ~cap_simulation();
+  explicit CapSimulation(double depth_sampling_resolution = DEFAULT_SAMPLING_RESOLUTION);
+  CapSimulation(CapMaterialInterface *material, double depth_sampling_resolution = DEFAULT_SAMPLING_RESOLUTION);
+  CapSimulation(CapMaterialInterface *material, LaserBeam *laser, double depth_sampling_resolution = DEFAULT_SAMPLING_RESOLUTION);
+  ~CapSimulation();
 
-  vector <cap_point> run(double td_stop, double td_step);
-  vector <cap_point> run(double td_start, double td_stop, double td_step);
+  std::vector <CapPoint> Run(double stop_time_delay, double time_delay_step);
+  std::vector <CapPoint> Run(double start_time_delay, double stop_time_delay, double time_delay_step);
 
-  void print_parameters(ostream & out = cout, string tag = "") const;
-  void set_material(CapMaterial *mat);
+  void PrintParameters(std::ostream & out = std::cout, std::string tag = "") const;
+  void set_material(CapMaterialInterface *material);
 
 private:
-  bool material_needs_destroyed;
-  double RR(double td);
+  bool _material_needs_destroyed;
+  CapMaterialInterface *_material;
+  LaserBeam _laser;
+  double _depth_sampling_resolution;
 
-  CapMaterial *material;
-  LaserBeam laser;
-  double resolution;
-
-  double n(double td, double z) const;
-  double k(double td, double z) const;
-  double strain(double td, double z) const;
+  void DestroyMaterialIfNecessary();
+  double CalculateReflectivityForTimeDelay(double time_delay) const;
+  double CalculateDifferentialReflectivity(double modulated_reflectivity, double baseline_reflectivity) const;
+  double CalculateStrain(double td, double z) const;
+  double CalculateUnstrainedReflectivity() const;
+  std::vector <CharacteristicMatrix> BuildLayerMatricesList(double time_delay) const;
+  complex <double> UnstrainedIndex(double depth) const;
+  complex <double> IndexBeforeSpecimen() const;
+  complex <double> IndexAfterSpecimen() const;
+  complex <double> CalculateIndexWithStrain(double time_delay, double depth) const;
 };
-
-double abs(double x);
 
 #endif

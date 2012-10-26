@@ -1,9 +1,7 @@
 #ifndef JMG_LASER_BEAM_H
 #define JMG_LASER_BEAH_H
 
-#ifndef pi
-#define pi 3.1415926535897932384626
-#endif
+static const double pi = 3.1415926535897932384626;
 
 class LaserBeam
 {
@@ -35,6 +33,8 @@ class LaserBeam
 
   double EnergyPerPulse() const { return _pump_power / _rep_rate; }
   double PumpSpotArea() const { return pi * 0.25 * _pump_diameter * _pump_diameter; }
+
+  void PrintParameters(std::ostream & out = std::cout, std::string tag = "") const;
 
  private:
   double _probe_wavelength; // m

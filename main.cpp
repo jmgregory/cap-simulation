@@ -7,12 +7,12 @@ using namespace std;
 
 #define NUM_THREADS 2
 
-void print_data(const vector <cap_point> & data, ostream & out = cout);
+void print_data(const vector <CapPoint> & data, ostream & out = cout);
 void *proxy_function(void *);
 
 struct sim_data
 {
-  vector <cap_point> * output;
+  vector <CapPoint> * output;
   int id;
   double start_time;
   double stop_time;
@@ -22,8 +22,8 @@ struct sim_data
 int main()
 {
   double start_time = 0.0;
-  double stop_time = 50e-12;
-  double time_step = 0.15e-12;
+  double stop_time = 100e-12;
+  double time_step = 0.25e-12;
 
   pthread_t thread[NUM_THREADS];
   pthread_attr_t attr;
@@ -71,21 +71,21 @@ int main()
 void * proxy_function(void * t_params)
 {
   sim_data * params = (sim_data *)t_params;
-  cap_simulation mySim;
+  CapSimulation mySim;
   if (params->id == 0)
     {
-      mySim.print_parameters(cerr);
-      mySim.print_parameters(cout, "# ");
+      mySim.PrintParameters(cerr);
+      mySim.PrintParameters(cout, "# ");
     }
-  vector <cap_point> data = mySim.run(params->start_time, params->stop_time, params->time_step);
-  params->output = new vector <cap_point> (data);
+  vector <CapPoint> data = mySim.Run(params->start_time, params->stop_time, params->time_step);
+  params->output = new vector <CapPoint> (data);
   return NULL;
 }
 
-void print_data(const vector <cap_point> & data, ostream & out)
+void print_data(const vector <CapPoint> & data, ostream & out)
 {
   for (unsigned int i = 0; i < data.size(); i++)
     {
-      out << data[i].t << '\t' << data[i].R << endl;
+      out << data[i].time_delay << '\t' << data[i].reflectivity << endl;
     }
 }

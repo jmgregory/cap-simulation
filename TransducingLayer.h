@@ -30,8 +30,8 @@ class TransducingLayer
 
   double absorption_length() const { return _absorption_length; }
 
-  double CalcStrainFactor() const;
-  void PrintParameters(std::ostream & out, std::string tag) const;
+  double CalculateStrainFactor() const;
+  void PrintParameters(std::ostream & out = std::cout, std::string tag = "") const;
 
  private:
   double _reflectivity; // R
