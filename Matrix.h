@@ -14,23 +14,27 @@ public:
   
   Matrix()
     : a(0.0), b(0.0), c(0.0), d(0.0) {}
-  Matrix(complex <double> a, complex <double> b, complex <double> c, complex <double> d)
-    : a(a), b(b), c(c), d(d) {}
+  Matrix(const complex <double> & A, const complex <double> & B, const complex <double> & C, const complex <double> & D)
+    : a(A), b(B), c(C), d(D) {}
   
   Matrix Invert() const;
   complex <double> CalculateDeterminant() const;
   std::string ToString() const;
 
   complex <double> a, b, c, d;
+
+private:
+  static std::string ComplexToString(const complex <double> & value); 
 };
 
 Matrix operator + (const Matrix & lhs, const Matrix & rhs);
 Matrix operator - (const Matrix & lhs, const Matrix & rhs);
 Matrix operator * (const Matrix & lhs, const Matrix & rhs);
-Matrix operator * (const Matrix & lhs, complex <double> rhs);
-Matrix operator * (complex <double> lhs, const Matrix & rhs);
-Matrix operator / (const Matrix & lhs, complex <double> rhs);
+Matrix operator * (const Matrix & lhs, const complex <double> & rhs);
+Matrix operator * (const complex <double> &lhs, const Matrix & rhs);
+Matrix operator / (const Matrix & lhs, const complex <double> & rhs);
 Matrix operator - (const Matrix & rhs);
 std::ostream & operator << (std::ostream & lhs, const Matrix & rhs);
+bool operator == (const Matrix & lhs, const Matrix & rhs);
 
 #endif

@@ -20,7 +20,7 @@ complex <double> Matrix::CalculateDeterminant() const
   return (a * d) - (b * c);
 }
 
-string ComplexToString(complex <double> value)
+string Matrix::ComplexToString(const complex <double> & value)
 {
   std::stringstream out;
   out << value;
@@ -55,6 +55,14 @@ string Matrix::ToString() const
   return result.str();
 }
 
+bool operator == (const Matrix & lhs, const Matrix & rhs)
+{
+  return (lhs.a == rhs.a &&
+	  lhs.b == rhs.b &&
+	  lhs.c == rhs.c &&
+	  lhs.d == rhs.d);
+}
+
 Matrix operator + (const Matrix & lhs, const Matrix & rhs)
 {
   return Matrix(lhs.a + rhs.a, lhs.b + rhs.b, lhs.c + rhs.c, lhs.d + rhs.d);
@@ -73,17 +81,17 @@ Matrix operator * (const Matrix & lhs, const Matrix & rhs)
 		lhs.c * rhs.b + lhs.d * rhs.d);
 }
 
-Matrix operator * (const Matrix & lhs, complex <double> rhs)
+Matrix operator * (const Matrix & lhs, const complex <double> & rhs)
 {
   return Matrix(lhs.a * rhs, lhs.b * rhs, lhs.c * rhs, lhs.d * rhs);
 }
 
-Matrix operator / (const Matrix & lhs, complex <double> rhs)
+Matrix operator / (const Matrix & lhs, const complex <double> & rhs)
 {
   return Matrix(lhs.a / rhs, lhs.b / rhs, lhs.c / rhs, lhs.d / rhs);
 }
 
-Matrix operator * (complex <double> lhs, const Matrix & rhs)
+Matrix operator * (const complex <double> & lhs, const Matrix & rhs)
 {
   return Matrix(rhs.a * lhs, rhs.b * lhs, rhs.c * lhs, rhs.d * lhs);
 }
