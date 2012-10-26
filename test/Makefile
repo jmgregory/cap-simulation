@@ -1,17 +1,20 @@
 my_tests:=$(patsubst %.cpp,%,$(wildcard *Test.cpp))
 
 LIBS=-lUnitTest++
-CPPFLAGS=-O3 -Wall -I/opt/local/include/UnitTest++ -L/opt/local/lib
+CPPFLAGS=-O0 -Wall -Winvalid-pch -I/opt/local/include/UnitTest++ -L/opt/local/lib
 
 .SECONDARY: $(my_tests)
 
 .PHONY: test-all
-test-all: $(patsubst %,%Run,$(my_tests))
+test-all test all: stdafx.h.gch $(patsubst %,%Run,$(my_tests))
 
 CharacteristicMatrixTest: ../Matrix.cpp ../Matrix.h
 
+stdafx.h.gch: stdafx.h
+	@g++ $(CPPFLAGS) -o $@ -c $^
+
 %Test: %Test.cpp main.cpp ../%.cpp ../%.h
-	@g++ $(CPPFLAGS) $(LIBS) -o $@ $^
+	@g++ -include stdafx.h $(CPPFLAGS) $(LIBS) -o $@ $^
 
 .PHONY: %TestRun
 %TestRun: %Test
@@ -21,3 +24,4 @@ CharacteristicMatrixTest: ../Matrix.cpp ../Matrix.h
 clean:
 	-@rm *~
 	-@rm $(my_tests)
+	-@rm stdafx.h.gch
