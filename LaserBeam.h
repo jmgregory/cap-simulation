@@ -31,6 +31,8 @@ class LaserBeam
   double rep_rate()         const { return _rep_rate; }
   double time_width()       const { return _time_width; }
 
+  void set_probe_wavelength(double wavelength) { _probe_wavelength = wavelength; }
+
   double EnergyPerPulse() const { return _pump_power / _rep_rate; }
   double PumpSpotArea() const { return pi * 0.25 * _pump_diameter * _pump_diameter; }
 
