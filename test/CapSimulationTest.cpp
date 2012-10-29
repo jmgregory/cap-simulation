@@ -1,6 +1,7 @@
 #include <UnitTest++.h>
 #include <vector>
 #include <iostream>
+#include <fstream>
 #include "../CapSimulation.h"
 
 struct DampedSineParameters
@@ -47,4 +48,16 @@ TEST(TestOutput)
   
   double deviation = CalculateAverageDeviationFromIdeal(simulation_output, fitting_parameters);
   CHECK(deviation < 3e-7);
+  if (deviation >= 3e-7)
+    {
+      std::cerr << "Deviation: " << deviation << std::endl;
+      std::cerr << "Output dumped to cap-sim-output-dump.dat." << std::endl;
+    }
+  std::ofstream outfile;
+  outfile.open("cap-sim-output-dump.dat");
+  for (unsigned int i = 0; i < simulation_output.size(); i++)
+    {
+      outfile << simulation_output[i].time_delay << '\t' << simulation_output[i].reflectivity << std::endl;
+    }
+  outfile.close();
 }

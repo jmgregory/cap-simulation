@@ -2,7 +2,7 @@
 #include <assert.h>
 #include "CapSimulation.h"
 #include "DefaultCapMaterial.h"
-#include "CharacteristicMatrix.h"
+#include "HomogeneousCharacteristicMatrix.h"
 
 using namespace std;
 
@@ -54,12 +54,12 @@ double CapSimulation::CalculateUnstrainedReflectivity() const
   return result;
 }
 
-vector <CharacteristicMatrix> CapSimulation::BuildLayerMatricesList(double time_delay) const
+vector <HomogeneousCharacteristicMatrix> CapSimulation::BuildLayerMatricesList(double time_delay) const
 {
-  vector <CharacteristicMatrix> matrices;
+  vector <HomogeneousCharacteristicMatrix> matrices;
   complex <double> this_index;
   int identical_layer_count = 0;
-  matrices.push_back(CharacteristicMatrix(IndexBeforeSpecimen(),
+  matrices.push_back(HomogeneousCharacteristicMatrix(IndexBeforeSpecimen(),
 					  _depth_sampling_resolution, 
 					  _laser.probe_wavelength()));
 
@@ -78,7 +78,7 @@ vector <CharacteristicMatrix> CapSimulation::BuildLayerMatricesList(double time_
 	      identical_layer_count = 0;
 	    }
 	  // TODO: Multiply thickness by strain in each layer
-	  matrices.push_back(CharacteristicMatrix(real(this_index), imag(this_index), _depth_sampling_resolution, _laser.probe_wavelength()));
+	  matrices.push_back(HomogeneousCharacteristicMatrix(real(this_index), imag(this_index), _depth_sampling_resolution, _laser.probe_wavelength()));
 	}
     }
   if (identical_layer_count != 0)
@@ -103,10 +103,20 @@ complex <double> CapSimulation::IndexAfterSpecimen() const
   return UnstrainedIndex(_material->max_interesting_depth());
 }
 
+CharacteristicMatrix CapSimulation::MultiplyMatrices(const std::vector <HomogeneousCharacteristicMatrix> & matrices) const
+{
+  CharacteristicMatrix result = matrices[0];
+  for(unsigned int i = 1; i < matrices.size(); i++)
+    {
+      result *= matrices[i];
+    }
+  return result;
+}
+
 double CapSimulation::CalculateReflectivityForTimeDelay(double time_delay) const
 {
-  vector <CharacteristicMatrix> matrices = BuildLayerMatricesList(time_delay);
-  CharacteristicMatrix full_specimen = CharacteristicMatrix::MultiplyMatrices(matrices);
+  vector <HomogeneousCharacteristicMatrix> matrices = BuildLayerMatricesList(time_delay);
+  CharacteristicMatrix full_specimen = MultiplyMatrices(matrices);
   return full_specimen.ReflectivityInEnvironment(IndexBeforeSpecimen(), IndexAfterSpecimen());
 }
 

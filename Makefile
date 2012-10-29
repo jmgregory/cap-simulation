@@ -1,11 +1,12 @@
-OBJECTS=TransducingLayer.o Matrix.o CharacteristicMatrix.o LaserBeam.o CapSimulation.o
+OBJECTS=TransducingLayer.o Matrix.o CharacteristicMatrix.o HomogeneousCharacteristicMatrix.o LaserBeam.o CapSimulation.o HomogeneousCharacteristicMatrix.o
 CPPFLAGS=-O3 -Wall -Winvalid-pch
 
 cap-sim: main.cpp $(OBJECTS)
 	g++ $(CPPFLAGS) $^ -o $@
 
-CapSimulation.o: CharacteristicMatrix.h DefaultCapMaterial.h LaserBeam.h TransducingLayer.h CapMaterialInterface.h
+CapSimulation.o: CharacteristicMatrix.h HomogeneousCharacteristicMatrix.h DefaultCapMaterial.h LaserBeam.h TransducingLayer.h CapMaterialInterface.h
 CharacteristicMatrix.o: Matrix.h
+HomogeneousCharacteristicMatrix.o: CharacteristicMatrix.h Matrix.h
 
 %.o: %.cpp %.h stdafx.h.gch
 	g++ $(CPPFLAGS) -include stdafx.h -c $< -o $@

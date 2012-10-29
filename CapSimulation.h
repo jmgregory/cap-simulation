@@ -8,7 +8,7 @@
 #include "CapMaterialInterface.h"
 #include "LaserBeam.h"
 #include "TransducingLayer.h"
-#include "CharacteristicMatrix.h"
+#include "HomogeneousCharacteristicMatrix.h"
 
 #define DEFAULT_SAMPLING_RESOLUTION 1e-10
 
@@ -53,7 +53,8 @@ private:
   double CalculateDifferentialReflectivity(double modulated_reflectivity, double baseline_reflectivity) const;
   double CalculateStrain(double td, double z) const;
   double CalculateUnstrainedReflectivity() const;
-  std::vector <CharacteristicMatrix> BuildLayerMatricesList(double time_delay) const;
+  std::vector <HomogeneousCharacteristicMatrix> BuildLayerMatricesList(double time_delay) const;
+  CharacteristicMatrix MultiplyMatrices(const std::vector <HomogeneousCharacteristicMatrix> & matrices) const;
   complex <double> UnstrainedIndex(double depth) const;
   complex <double> IndexBeforeSpecimen() const;
   complex <double> IndexAfterSpecimen() const;
