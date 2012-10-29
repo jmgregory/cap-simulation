@@ -8,11 +8,12 @@ FAILMESSAGE=echo "[0;37;41m                                     [0;37;40m" ; e
 
 .SECONDARY: $(my_tests)
 
-.PHONY: test-all
+.PHONY: test-all test all
 test-all test all: stdafx.h.gch $(patsubst %,%Run,$(my_tests))
 	@$(PASSMESSAGE)
 
 CharacteristicMatrixTest: ../Matrix.cpp ../Matrix.h
+CapSimulationTest: ../CapSimulation.h ../CapSimulation.cpp ../TransducingLayer.cpp ../TransducingLayer.h ../CharacteristicMatrix.cpp ../Characteristicmatrix.h ../Matrix.cpp ../Matrix.h ../LaserBeam.h ../LaserBeam.cpp
 
 stdafx.h.gch: stdafx.h
 	@g++ $(CPPFLAGS) -o $@ -c $^
