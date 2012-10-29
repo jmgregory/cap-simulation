@@ -27,12 +27,8 @@ class DefaultCapMaterial : public CapMaterialInterface
     return 0.0;
   }
 
-  // Although this function is not strictly required in this case, it is included
-  // here as an example for other sub-classes.
-  void PrintParameters(std::ostream & out = std::cout, std::string tag = "") const
-  { 
-    CapMaterialInterface::PrintParameters(out, tag);
-  }
+  void PrintCustomParameters(std::ostream & out = std::cout, std::string tag = "") const
+  { }
 
   TransducingLayer transducing_layer() const
   {

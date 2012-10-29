@@ -32,8 +32,8 @@ public:
   // Transducing layer
   virtual TransducingLayer transducing_layer() const = 0;
   
-  // Your subclass should call this function before printing its own parameters
-  virtual void PrintParameters(std::ostream & out = std::cout, std::string tag = "") const
+  // Don't overload this function; overload PrintCustomParameters() instead
+  void PrintParameters(std::ostream & out = std::cout, std::string tag = "") const
   {
     using std::endl;
     transducing_layer().PrintParameters(out, tag);
@@ -42,7 +42,10 @@ public:
     out << tag << "  ------------------------------- " << endl;
     out << tag << "       Maximum interesting depth: " << max_interesting_depth() * 1e9 << " nm" << endl;
     out << tag << "    Smallest interesting feature: " << smallest_feature() * 1e9 << " nm" << endl;
+    PrintCustomParameters(out, tag);
   }
+
+  virtual void PrintCustomParameters(std::ostream & out = std::cout, std::string tag = "") const = 0;
 
   virtual ~CapMaterialInterface() {}
 };
