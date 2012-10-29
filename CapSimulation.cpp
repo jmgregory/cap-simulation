@@ -153,7 +153,7 @@ void CapSimulation::DestroyMaterialIfNecessary()
 
 void CapSimulation::set_material(CapMaterialInterface *material)
 {
-  if (_material == NULL)
+  if (material == NULL)
     {
       _material = new DefaultCapMaterial();
       _material_needs_destroyed = true;
