@@ -23,6 +23,6 @@ clean:
 	@cd test && make clean
 	@-rm \#*\#
 
-.PHONY: test
-test: cap-sim
+.PHONY: test check
+test check:
 	@cd test && make
