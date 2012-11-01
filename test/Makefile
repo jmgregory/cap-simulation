@@ -10,6 +10,7 @@ FAILMESSAGE=echo "[0;37;41m                                     [0;37;40m" ; e
 
 .PHONY: test-all test all check
 test-all test all check: stdafx.h.gch $(patsubst %,%Run,$(my_tests))
+	@echo
 	@$(PASSMESSAGE)
 
 CharacteristicMatrixTest: ../Matrix.o
@@ -22,14 +23,11 @@ stdafx.h.gch: stdafx.h
 	@cd .. && make $*.o
 
 %Test: %Test.cpp main.cpp ../%.o stdafx.h.gch
-	@echo Building $@...
 	@g++ -include stdafx.h $(CPPFLAGS) $(LIBS) -o $@ $(subst stdafx.h.gch,,$^)
 
 .PHONY: %TestRun
 %TestRun: %Test
-	@echo Running $<...
 	@./$< ; if [ $$? -ne 0 ] ; then echo ; $(FAILMESSAGE) ; false ; fi
-	@echo
 
 .PHONY: clean
 clean:
