@@ -47,17 +47,18 @@ TEST(TestOutput)
   fitting_parameters.offset = 0.025643009960261;
   
   double deviation = CalculateAverageDeviationFromIdeal(simulation_output, fitting_parameters);
-  CHECK(deviation < 3e-7);
-  if (deviation >= 3e-7)
+  double max_deviation = 3e-7;
+  CHECK(deviation < max_deviation);
+  if (deviation >= max_deviation)
     {
-      std::cerr << "Deviation: " << deviation << std::endl;
+      std::cerr << "Error: deviation " << deviation << " >= maximum allowable value of " << max_deviation << std::endl;
+      std::ofstream outfile;
+      outfile.open("cap-sim-output-dump.dat");
+      for (unsigned int i = 0; i < simulation_output.size(); i++)
+	{
+	  outfile << simulation_output[i].time_delay << '\t' << simulation_output[i].reflectivity << std::endl;
+	}
+      outfile.close();
       std::cerr << "Output dumped to cap-sim-output-dump.dat." << std::endl;
     }
-  std::ofstream outfile;
-  outfile.open("cap-sim-output-dump.dat");
-  for (unsigned int i = 0; i < simulation_output.size(); i++)
-    {
-      outfile << simulation_output[i].time_delay << '\t' << simulation_output[i].reflectivity << std::endl;
-    }
-  outfile.close();
 }
