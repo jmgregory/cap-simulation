@@ -19,11 +19,11 @@ stdafx.h.gch: stdafx.h
 	@g++ $(CPPFLAGS) -o $@ -c $^
 
 ../%.o:
-	cd .. && make $*.o
+	@cd .. && make $*.o
 
-%Test: %Test.cpp main.cpp ../%.o
+%Test: %Test.cpp main.cpp ../%.o stdafx.h.gch
 	@echo Building $@...
-	@g++ -include stdafx.h $(CPPFLAGS) $(LIBS) -o $@ $^
+	@g++ -include stdafx.h $(CPPFLAGS) $(LIBS) -o $@ $(subst stdafx.h.gch,,$^)
 
 .PHONY: %TestRun
 %TestRun: %Test
@@ -36,3 +36,4 @@ clean:
 	-@rm *~
 	-@rm $(my_tests)
 	-@rm stdafx.h.gch
+	-@rm cap-sim-output-dump.dat
