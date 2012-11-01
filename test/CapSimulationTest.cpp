@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include "../CapSimulation.h"
+#include "../Exception.h"
+#include "../CapMaterialInterface.h"
 
 struct DampedSineParameters
 {
@@ -34,7 +36,7 @@ double CalculateAverageDeviationFromIdeal(std::vector <CapPoint> data_points, Da
   return sum / data_points.size();
 }
 
-TEST(TestOutput)
+TEST(SimulationResultBehavesAsExpected)
 {
   CapSimulation simulation;
   std::vector <CapPoint> simulation_output = simulation.Run(0, 100e-12, 0.5e-12);
@@ -62,3 +64,23 @@ TEST(TestOutput)
       std::cerr << "Output dumped to cap-sim-output-dump.dat." << std::endl;
     }
 }
+
+TEST(ZeroUnstrainedReflectivityThrowsException)
+{
+  class AirCapMaterial : public CapMaterialInterface
+  {
+    double smallest_feature() const {return 1e-9;}
+    double max_interesting_depth() const {return 1e-9;}
+    double n(double z, double lambda) const {return 1.0;}
+    double kappa(double z, double lambda) const {return 0.0;}
+    double speed_of_sound(double z) const {return 346.13;}
+    double dndeta(double z, double lambda) const {return 0.0;}
+    double dkappadeta(double z, double lambda) const {return 0.0;}
+    TransducingLayer transducing_layer() const {return TransducingLayer();}
+    void PrintCustomParameters(std::ostream & out = std::cout, std::string tag = "") const {}
+  } air_material;
+
+  CapSimulation mySim(&air_material);
+  CHECK_THROW(mySim.Run(100e-12, 1e-12), Exception);
+}
+

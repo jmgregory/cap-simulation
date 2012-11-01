@@ -3,6 +3,7 @@
 #include "CapSimulation.h"
 #include "DefaultCapMaterial.h"
 #include "HomogeneousCharacteristicMatrix.h"
+#include "Exception.h"
 
 using namespace std;
 
@@ -50,7 +51,7 @@ vector <CapPoint> CapSimulation::Run(double start_time_delay, double stop_time_d
 double CapSimulation::CalculateUnstrainedReflectivity() const
 {
   double result = CalculateReflectivityForTimeDelay(-1.0);
-  if (result == 0.0) throw exception(); // If baseline reflectivity is zero, all results will be INF
+  if (result == 0.0) throw Exception("Unstrained Reflectivity of the material was zero... All (R-R0)/R0 points will be infinity!");
   return result;
 }
 
@@ -117,7 +118,7 @@ double CapSimulation::CalculateReflectivityForTimeDelay(double time_delay) const
 {
   vector <HomogeneousCharacteristicMatrix> matrices = BuildLayerMatricesList(time_delay);
   CharacteristicMatrix full_specimen = MultiplyMatrices(matrices);
-  return full_specimen.ReflectivityInEnvironment(IndexBeforeSpecimen(), IndexAfterSpecimen());
+  return full_specimen.ReflectivityInEnvironment(_laser.probe_wavelength(), IndexBeforeSpecimen(), IndexAfterSpecimen());
 }
 
 double sgn(double x)
