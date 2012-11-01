@@ -7,11 +7,11 @@
 static const double pi = 3.1415926535897932384626;
 
 CharacteristicMatrix::CharacteristicMatrix()
-  : _thickness(1e-9), _wavelength(400e-9)
+  : _thickness(1e-9)
 { }
 
-CharacteristicMatrix::CharacteristicMatrix(double thickness, double wavelength)
-  : _thickness(thickness), _wavelength(wavelength)
+CharacteristicMatrix::CharacteristicMatrix(double thickness)
+  : _thickness(thickness)
 { }
 
 CharacteristicMatrix operator * (const CharacteristicMatrix & lhs, const CharacteristicMatrix & rhs)
@@ -36,11 +36,6 @@ void CharacteristicMatrix::set_thickness(double thickness)
   _thickness = thickness;
 }
 
-double CharacteristicMatrix::wavelength() const
-{
-  return _wavelength;
-}
-
 CharacteristicMatrix & CharacteristicMatrix::operator *= (const CharacteristicMatrix & rhs)
 {
   _matrix = (_matrix * rhs.GetMatrix());
@@ -53,22 +48,23 @@ double CharacteristicMatrix::MagnitudeSquared(complex <double> number)
   return real(number) * real(number) + imag(number) * imag(number);
 }
 
-double CharacteristicMatrix::ReflectivityInEnvironment(complex <double> index_before, complex <double> index_after) const
+Matrix CharacteristicMatrix::CalculateFullMatrixInEnvironment(double wavelength, complex <double> index_before, complex <double> index_after) const
 {
-  Matrix M0(1.0, 1.0, 2.0 * pi * index_before / _wavelength, -2.0 * pi * index_before / _wavelength);
-  Matrix Ma(1.0, 1.0, 2.0 * pi * index_after  / _wavelength, -2.0 * pi * index_after  / _wavelength);
-  Matrix M = M0.Inverted() * _matrix * Ma;
+  Matrix M0(1.0, 1.0, 2.0 * pi * index_before / wavelength, -2.0 * pi * index_before / wavelength);
+  Matrix Ma(1.0, 1.0, 2.0 * pi * index_after  / wavelength, -2.0 * pi * index_after  / wavelength);
+  return M0.Inverted() * _matrix * Ma;
+}
 
+double CharacteristicMatrix::ReflectivityInEnvironment(double wavelength, complex <double> index_before, complex <double> index_after) const
+{
+  Matrix M = CalculateFullMatrixInEnvironment(wavelength, index_before, index_after);
   complex <double> b0 = M.c / M.a;
   return MagnitudeSquared(b0);
 }
 
-double CharacteristicMatrix::TransmissionInEnvironment(complex <double> index_before, complex <double> index_after) const
+double CharacteristicMatrix::TransmissionInEnvironment(double wavelength, complex <double> index_before, complex <double> index_after) const
 {
-  Matrix M0(1.0, 1.0, 2.0 * pi * index_before / _wavelength, -2.0 * pi * index_before / _wavelength);
-  Matrix Ma(1.0, 1.0, 2.0 * pi * index_after  / _wavelength, -2.0 * pi * index_after  / _wavelength);
-  Matrix M = M0.Inverted() * _matrix * Ma;
-
+  Matrix M = CalculateFullMatrixInEnvironment(wavelength, index_before, index_after);
   complex <double> a1 = 1.0 / M.a;
   return MagnitudeSquared(a1);
 }
@@ -88,7 +84,6 @@ CharacteristicMatrix CharacteristicMatrix::MultiplyMatrices(const std::vector <C
 CharacteristicMatrix CharacteristicMatrix::operator = (const CharacteristicMatrix & rhs)
 {
   _thickness = rhs.thickness();
-  _wavelength = rhs.wavelength();
   _matrix = rhs.GetMatrix();
   return *this;
 }

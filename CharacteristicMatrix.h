@@ -21,8 +21,8 @@ class CharacteristicMatrix
 
   CharacteristicMatrix & operator *= (const CharacteristicMatrix & rhs);
 
-  double ReflectivityInEnvironment(complex <double> index_before = air_index, complex <double> index_after = air_index) const;
-  double TransmissionInEnvironment(complex <double> index_before = air_index, complex <double> index_after = air_index) const;
+  double ReflectivityInEnvironment(double wavelength, complex <double> index_before = air_index, complex <double> index_after = air_index) const;
+  double TransmissionInEnvironment(double wavelength, complex <double> index_before = air_index, complex <double> index_after = air_index) const;
 
   //static CharacteristicMatrix MultiplyMatrices(const std::vector <CharacteristicMatrix> & matrices);
   
@@ -30,13 +30,13 @@ class CharacteristicMatrix
  
  private:
   static double MagnitudeSquared(complex <double> number);
+  Matrix CalculateFullMatrixInEnvironment(double wavelength, complex <double> index_before, complex <double> index_after) const;
 
  protected:
   CharacteristicMatrix();
-  CharacteristicMatrix(double thickness, double wavelength);
+  CharacteristicMatrix(double thickness);
 
   double _thickness;
-  double _wavelength;
   Matrix _matrix;
 };
 
