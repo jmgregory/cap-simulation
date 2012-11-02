@@ -69,7 +69,7 @@ double CharacteristicMatrix::TransmissionInEnvironment(double wavelength, comple
   return MagnitudeSquared(a1);
 }
 
-CharacteristicMatrix CharacteristicMatrix::operator = (const CharacteristicMatrix & rhs)
+CharacteristicMatrix & CharacteristicMatrix::operator = (const CharacteristicMatrix & rhs)
 {
   _thickness = rhs.thickness();
   _matrix = rhs.GetMatrix();

@@ -12,10 +12,8 @@ const complex <double> air_index = complex <double> (1.0, 0.0);
 class CharacteristicMatrix
 {
  public:
-
   void set_thickness(double thickness);
 
-  double wavelength() const;
   double thickness() const;
   Matrix GetMatrix() const;
 
@@ -24,7 +22,7 @@ class CharacteristicMatrix
   double ReflectivityInEnvironment(double wavelength, complex <double> index_before = air_index, complex <double> index_after = air_index) const;
   double TransmissionInEnvironment(double wavelength, complex <double> index_before = air_index, complex <double> index_after = air_index) const;
 
-  CharacteristicMatrix operator = (const CharacteristicMatrix & rhs);
+  CharacteristicMatrix & operator = (const CharacteristicMatrix & rhs);
  
  private:
   static double MagnitudeSquared(complex <double> number);
