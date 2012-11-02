@@ -70,7 +70,7 @@ int main()
 
 void * proxy_function(void * t_params)
 {
-  sim_data * params = (sim_data *)t_params;
+  sim_data * params = static_cast<sim_data *>(t_params);
   CapSimulation mySim;
   if (params->id == 0)
     {
