@@ -10,5 +10,6 @@
 #include <vector>
 #include <cstdlib>
 #include <assert.h>
+#include <exception>
 
 #endif
