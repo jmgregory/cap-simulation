@@ -15,7 +15,8 @@ test-all test all check: stdafx.h.gch $(patsubst %,%Run,$(my_tests))
 
 HomogeneousCharacteristicMatrixTest: ../Matrix.o ../CharacteristicMatrix.o
 CharacteristicMatrixTest: ../Matrix.o
-CapSimulationTest: ../TransducingLayer.o ../CharacteristicMatrix.o ../Matrix.o ../LaserBeam.o ../HomogeneousCharacteristicMatrix.o ../Exception.o ../DefaultCapMaterial.h ../CapMaterialInterface.h
+CapSimulationTest: ../TransducingLayer.o ../CharacteristicMatrix.o ../Matrix.o ../LaserBeam.o ../HomogeneousCharacteristicMatrix.o ../Exception.o
+../CapSimulation.o: ../DefaultCapMaterial.h ../CapMaterialInterface.h
 
 stdafx.h.gch: stdafx.h
 	@g++ $(CPPFLAGS) -o $@ -c $^
@@ -24,7 +25,7 @@ stdafx.h.gch: stdafx.h
 	cd .. && make $*.o
 
 %Test: %Test.cpp main.cpp ../%.o stdafx.h.gch
-	g++ -include stdafx.h $(CPPFLAGS) $(LIBS) -o $@ $(patsubst ../%.h,,$(subst stdafx.h.gch,,$^))
+	g++ -include stdafx.h $(CPPFLAGS) $(LIBS) -o $@ $(subst stdafx.h.gch,,$^)
 
 .PHONY: %TestRun
 %TestRun: %Test
