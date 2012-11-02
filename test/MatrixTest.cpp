@@ -49,6 +49,7 @@ TEST_FIXTURE(MatrixTestFixture, InversionCalculation)
 		  -test_matrix_1.c/determinant, 
 		   test_matrix_1.a/determinant);
   CHECK_EQUAL(expected, test_matrix_1.Inverted());
+  CHECK_EQUAL(Matrix::identity_matrix, test_matrix_1 * test_matrix_1.Inverted());
 }
 
 TEST_FIXTURE(MatrixTestFixture, DeterminantCalculation)
