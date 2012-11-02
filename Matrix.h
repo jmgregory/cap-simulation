@@ -36,5 +36,6 @@ Matrix operator / (const Matrix & lhs, const complex <double> & rhs);
 Matrix operator - (const Matrix & rhs);
 std::ostream & operator << (std::ostream & lhs, const Matrix & rhs);
 bool operator == (const Matrix & lhs, const Matrix & rhs);
+bool operator != (const Matrix & lhs, const Matrix & rhs);
 
 #endif

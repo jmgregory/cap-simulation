@@ -63,6 +63,14 @@ bool operator == (const Matrix & lhs, const Matrix & rhs)
 	  lhs.d == rhs.d);
 }
 
+bool operator != (const Matrix & lhs, const Matrix & rhs)
+{
+  return (lhs.a != rhs.a ||
+	  lhs.b != rhs.b ||
+	  lhs.c != rhs.c ||
+	  lhs.d != rhs.d);
+}
+
 Matrix operator + (const Matrix & lhs, const Matrix & rhs)
 {
   return Matrix(lhs.a + rhs.a, lhs.b + rhs.b, lhs.c + rhs.c, lhs.d + rhs.d);
@@ -103,6 +111,6 @@ Matrix operator - (const Matrix & rhs)
 
 std::ostream & operator << (std::ostream & lhs, const Matrix & rhs)
 {
-  lhs << rhs.ToString();
+  lhs << std::endl << rhs.ToString();
   return lhs;
 }
