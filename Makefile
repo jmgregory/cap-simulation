@@ -4,7 +4,7 @@ CPPFLAGS=-O3 -Wall -Winvalid-pch
 cap-sim: main.cpp $(OBJECTS)
 	g++ $(CPPFLAGS) $^ -o $@
 
-CapSimulation.o: CharacteristicMatrix.h HomogeneousCharacteristicMatrix.h DefaultCapMaterial.h LaserBeam.h TransducingLayer.h CapMaterialInterface.h
+CapSimulation.o: CharacteristicMatrix.h HomogeneousCharacteristicMatrix.h DefaultCapMaterial.h LaserBeam.h TransducingLayer.h CapMaterialInterface.h Exception.h
 CharacteristicMatrix.o: Matrix.h
 HomogeneousCharacteristicMatrix.o: CharacteristicMatrix.h Matrix.h
 

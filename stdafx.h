@@ -5,5 +5,6 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <exception>
 
 #endif
