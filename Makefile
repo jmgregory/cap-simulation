@@ -26,3 +26,4 @@ clean:
 .PHONY: test check
 test check:
 	@cd test && make
+	@cppcheck --enable=all -i Stephanie-ErAs -i test . > /dev/null
