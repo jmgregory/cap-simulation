@@ -4,7 +4,8 @@
 #include <iostream>
 #include <string>
 #include "CapMaterialInterface.h"
-#include "TransducingLayer.h"
+
+class TransducingLayer;
 
 class DefaultCapMaterial : public CapMaterialInterface
 {
