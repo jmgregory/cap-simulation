@@ -153,16 +153,36 @@ complex <double> CapSimulation::CalculateIndexWithStrain(double time_delay, doub
     }
 }
 
+void CapSimulation::CheckDepthSamplingResolutionAgainstMaterial()
+{
+  if (_depth_sampling_resolution >= _material->smallest_feature())
+    {
+      _depth_sampling_resolution = _material->smallest_feature();
+    }
+}
+
+void CapSimulation::set_laser(const LaserBeam & laser)
+{
+  _laser = laser;
+}
+
+CapSimulation::CapSimulation()
+  : _depth_sampling_resolution(1e-10), _laser(LaserBeam())
+{
+  set_material(NULL);
+  CheckDepthSamplingResolutionAgainstMaterial();
+}
+
 void CapSimulation::DestroyMaterialIfNecessary()
 {
   if (_material_needs_destroyed)
     {
       delete _material;
       _material_needs_destroyed = false;
-    }  
+    }
 }
 
-void CapSimulation::set_material(CapMaterialInterface *material)
+void CapSimulation::set_material(CapMaterialInterface * material)
 {
   if (material == NULL)
     {
@@ -174,29 +194,10 @@ void CapSimulation::set_material(CapMaterialInterface *material)
       DestroyMaterialIfNecessary();
       _material = material;
     }
-  if (_depth_sampling_resolution >= _material->smallest_feature()) _depth_sampling_resolution = _material->smallest_feature();
-}
-
-CapSimulation::CapSimulation(double depth_sampling_resolution)
-{
-  _depth_sampling_resolution = depth_sampling_resolution;
-  set_material(NULL);
-}
-
-CapSimulation::CapSimulation(CapMaterialInterface *material, double depth_sampling_resolution)
-{
-  _depth_sampling_resolution = depth_sampling_resolution;
-  set_material(material);
-}
-
-CapSimulation::CapSimulation(CapMaterialInterface *material, LaserBeam *laser, double depth_sampling_resolution)
-{
-  _depth_sampling_resolution = depth_sampling_resolution;
-  _laser = *laser;
-  set_material(material);
+  CheckDepthSamplingResolutionAgainstMaterial();
 }
 
 CapSimulation::~CapSimulation()
 {
-  if (_material_needs_destroyed) delete _material;
+  DestroyMaterialIfNecessary();
 }

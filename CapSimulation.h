@@ -10,8 +10,6 @@
 #include "TransducingLayer.h"
 #include "HomogeneousCharacteristicMatrix.h"
 
-#define DEFAULT_SAMPLING_RESOLUTION 1e-10
-
 using std::complex;
 
 struct CapPoint
@@ -31,24 +29,25 @@ struct CapPoint
 class CapSimulation
 {
 public:
-  explicit CapSimulation(double depth_sampling_resolution = DEFAULT_SAMPLING_RESOLUTION);
-  CapSimulation(CapMaterialInterface *material, double depth_sampling_resolution = DEFAULT_SAMPLING_RESOLUTION);
-  CapSimulation(CapMaterialInterface *material, LaserBeam *laser, double depth_sampling_resolution = DEFAULT_SAMPLING_RESOLUTION);
+  CapSimulation();
   ~CapSimulation();
 
   std::vector <CapPoint> Run(double stop_time_delay, double time_delay_step);
   std::vector <CapPoint> Run(double start_time_delay, double stop_time_delay, double time_delay_step);
 
   void PrintParameters(std::ostream & out = std::cout, std::string tag = "") const;
-  void set_material(CapMaterialInterface *material);
+
+  void set_material(CapMaterialInterface * material);
+  void set_laser(const LaserBeam & laser);
 
 private:
-  bool _material_needs_destroyed;
-  CapMaterialInterface *_material;
-  LaserBeam _laser;
   double _depth_sampling_resolution;
+  CapMaterialInterface * _material;
+  LaserBeam _laser;
+  bool _material_needs_destroyed;
 
   void DestroyMaterialIfNecessary();
+  void CheckDepthSamplingResolutionAgainstMaterial();
   double CalculateReflectivityForTimeDelay(double time_delay) const;
   double CalculateDifferentialReflectivity(double modulated_reflectivity, double baseline_reflectivity) const;
   double CalculateStrain(double td, double z) const;

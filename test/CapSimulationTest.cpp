@@ -80,7 +80,11 @@ class AirCapMaterial : public CapMaterialInterface
 
 struct AirTestFixture
 {
-  AirTestFixture() : air_material(), my_simulation(&air_material) {}
+  AirTestFixture()
+    : air_material()
+  {
+    my_simulation.set_material(&air_material);
+  }
 
   AirCapMaterial air_material;
   CapSimulation my_simulation;
