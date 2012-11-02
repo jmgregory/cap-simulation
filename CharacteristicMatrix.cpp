@@ -69,18 +69,6 @@ double CharacteristicMatrix::TransmissionInEnvironment(double wavelength, comple
   return MagnitudeSquared(a1);
 }
 
-/*
-CharacteristicMatrix CharacteristicMatrix::MultiplyMatrices(const std::vector <CharacteristicMatrix> & matrices)
-{
-  CharacteristicMatrix result = matrices[0];
-  for(unsigned int i = 1; i < matrices.size(); i++)
-    {
-      result *= matrices[i];
-    }
-  return result;
-}
-*/
-
 CharacteristicMatrix CharacteristicMatrix::operator = (const CharacteristicMatrix & rhs)
 {
   _thickness = rhs.thickness();
