@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "HomogeneousCharacteristicMatrix.h"
 
 HomogeneousCharacteristicMatrix::HomogeneousCharacteristicMatrix(double n, double k, double thickness, double wavelength)
@@ -79,4 +80,13 @@ void HomogeneousCharacteristicMatrix::set_wavelength(double wavelength)
 {
   _wavelength = wavelength;
   CalculateHomogeneousMatrix();
+}
+
+HomogeneousCharacteristicMatrix & HomogeneousCharacteristicMatrix::operator *= (const HomogeneousCharacteristicMatrix & rhs)
+{
+  // It doesn't make sense to *= a homogeneous matrix, because then it isn't
+  // homogeneous anymore.  This function is inherited from CharacteristicMatrix,
+  // but should never be called on a HomogeneousCharacteristicMatrix.  Use the
+  // * operator instead, which returns a generic CharacteristicMatrix.
+  assert(false);
 }

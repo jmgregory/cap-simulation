@@ -27,6 +27,11 @@ class HomogeneousCharacteristicMatrix : public CharacteristicMatrix
   double _wavelength;
   static const double pi = 3.1415926535897932384626;
 
+  // It doesn't make sense to *= a homogeneous matrix, because then it isn't
+  // homogeneous anymore.
+  // Thus, we need to hide the inherited *= operator for the homogeneous case
+  HomogeneousCharacteristicMatrix & operator *= (const HomogeneousCharacteristicMatrix & rhs);
+
   void CalculateHomogeneousMatrix();
 };
 
