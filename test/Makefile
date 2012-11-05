@@ -1,4 +1,4 @@
-my_tests:=$(patsubst %.cpp,%,$(wildcard *Test.cpp))
+my_tests=CharacteristicMatrixTest ExceptionTest HomogeneousCharacteristicMatrixTest LaserBeamTest MatrixTest TransducingLayerTest CapSimulationTest
 
 LIBS=-lUnitTest++
 CPPFLAGS=-O0 -Wall -Winvalid-pch -I/opt/local/include/UnitTest++ -L/opt/local/lib
