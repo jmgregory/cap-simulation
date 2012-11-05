@@ -6,7 +6,7 @@ CPPFLAGS=-O0 -Wall -Winvalid-pch -I/opt/local/include/UnitTest++ -L/opt/local/li
 PASSMESSAGE=echo "[0;37;42m                                     [0;37;40m" ; echo "[0;37;42m          All tests passed!          [0;37;40m" ; echo "[0;37;42m                                     [0;37;40m"; echo
 FAILMESSAGE=echo "[0;37;41m                                     [0;37;40m" ; echo "[0;37;41m           Test(s) Failed!           [0;37;40m" ; echo "[0;37;41m                                     [0;37;40m" ; echo
 
-.SECONDARY: $(my_tests) ../CapSimulation.o
+.SECONDARY: $(my_tests) $(patsubst %Test,../%.o,$(my_tests))
 
 .PHONY: test-all test all check
 test-all test all check: stdafx.h.gch $(patsubst %,%Run,$(my_tests))
