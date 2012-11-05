@@ -5,6 +5,7 @@
 #include "../CapSimulation.h"
 #include "../Exception.h"
 #include "../CapMaterialInterface.h"
+#include "../DefaultCapMaterial.h"
 
 struct DampedSineParameters
 {
@@ -14,6 +15,89 @@ struct DampedSineParameters
   double decay;
   double offset;
 };
+
+double DampedSine(double x, DampedSineParameters parameters);
+double CalculateAverageDeviationFromIdeal(std::vector <CapPoint> data_points, DampedSineParameters fitting_parameters);
+void DumpSimResultsToFile(const std::vector <CapPoint> & simulation_output, string filename);
+
+TEST(SimulationTimeLimits)
+{
+  CapSimulation simulation;
+  std::vector <CapPoint> simulation_output;
+
+  simulation_output = simulation.Run(2e-12, 0.5e-12);
+  CHECK_EQUAL(5, (int)simulation_output.size());
+  CHECK_EQUAL(0.0, simulation_output[0].time_delay);
+  CHECK_CLOSE(2e-12, simulation_output[simulation_output.size()-1].time_delay, 1e-20);
+
+  simulation_output = simulation.Run(0.0, 2e-12, 0.5e-12);
+  CHECK_EQUAL(5, (int)simulation_output.size());
+  CHECK_EQUAL(0.0, simulation_output[0].time_delay);
+  CHECK_CLOSE(2e-12, simulation_output[simulation_output.size()-1].time_delay, 1e-20);
+}
+
+double abs(double x)
+{
+  return (x > 0.0) ? x : -x;
+}
+
+TEST(SimulationResultBehavesAsExpected)
+{
+  CapSimulation simulation;
+  std::vector <CapPoint> simulation_output = simulation.Run(0, 100e-12, 0.5e-12);
+
+  DampedSineParameters fitting_parameters;
+  // Values taken from GNUPlot fit
+  fitting_parameters.amplitude = -0.025958760191362;
+  fitting_parameters.period = 4.75653830091963e-12;
+  fitting_parameters.phase = 1.63315567299119;
+  fitting_parameters.decay = 3.63142093111686e-11;
+  fitting_parameters.offset = 0.025662930011437;
+
+  double deviation = CalculateAverageDeviationFromIdeal(simulation_output, fitting_parameters);
+  double max_deviation = 8e-9;
+  CHECK(deviation < max_deviation);
+
+  if (deviation >= max_deviation)
+    {
+      std::cerr << "Error: deviation " << deviation << " >= maximum allowable value of " << max_deviation << std::endl;
+      DumpSimResultsToFile(simulation_output, "cap-sim-output-dump.dat");
+    }
+  
+  double wavelength = LaserBeam().probe_wavelength();
+  double index = DefaultCapMaterial().n(0.0, wavelength);
+  double speed_of_sound = DefaultCapMaterial().speed_of_sound(0.0);
+
+  CHECK_CLOSE(wavelength / (2.0 * index * speed_of_sound),
+	      abs(fitting_parameters.period), 
+	      1e-14);
+
+  double kappa = DefaultCapMaterial().kappa(0.0, wavelength);
+  const double pi = 3.1415926535897932384627;
+  double alpha = 4.0 * pi * kappa / wavelength; // m-1
+
+  // Note: oscillations should decay as exp(-alpha*z), NOT exp(-2*alpha*z)
+  // This is due to the way the electric fields decay and recombine.
+  // This may be verified by looking at Thomsen (1986), and dividing the
+  // squared magnitude of Eqn. 30 by the squared magnitude of Eqn. 21 to get R.
+  // The oscillating component of the resulting reflectivity decays by
+  // exp(-4*pi*kappa*z/lambda), which is equal to exp(-alpha*z).
+  CHECK_CLOSE(alpha,
+	      1.0 / fitting_parameters.decay / speed_of_sound,
+	      1e3);
+}
+
+void DumpSimResultsToFile(const std::vector <CapPoint> & simulation_output, string filename)
+{
+  std::ofstream outfile;
+  outfile.open(filename.c_str());
+  for (unsigned int i = 0; i < simulation_output.size(); i++)
+    {
+      outfile << simulation_output[i].time_delay << '\t' << simulation_output[i].reflectivity << std::endl;
+    }
+  outfile.close();
+  std::cerr << "Output dumped to cap-sim-output-dump.dat." << std::endl;
+}
 
 double DampedSine(double x, DampedSineParameters parameters)
 {
@@ -36,34 +120,6 @@ double CalculateAverageDeviationFromIdeal(std::vector <CapPoint> data_points, Da
   return sum / data_points.size();
 }
 
-TEST(SimulationResultBehavesAsExpected)
-{
-  CapSimulation simulation;
-  std::vector <CapPoint> simulation_output = simulation.Run(0, 100e-12, 0.5e-12);
-
-  DampedSineParameters fitting_parameters;
-  fitting_parameters.amplitude = -0.024000000000006;
-  fitting_parameters.period = -4.75015303043906e-12;
-  fitting_parameters.phase = 1.5707963267949;
-  fitting_parameters.decay = 3.94321605576412e-11;
-  fitting_parameters.offset = 0.025643009960261;
-  
-  double deviation = CalculateAverageDeviationFromIdeal(simulation_output, fitting_parameters);
-  double max_deviation = 3e-7;
-  CHECK(deviation < max_deviation);
-  if (deviation >= max_deviation)
-    {
-      std::cerr << "Error: deviation " << deviation << " >= maximum allowable value of " << max_deviation << std::endl;
-      std::ofstream outfile;
-      outfile.open("cap-sim-output-dump.dat");
-      for (unsigned int i = 0; i < simulation_output.size(); i++)
-	{
-	  outfile << simulation_output[i].time_delay << '\t' << simulation_output[i].reflectivity << std::endl;
-	}
-      outfile.close();
-      std::cerr << "Output dumped to cap-sim-output-dump.dat." << std::endl;
-    }
-}
 
 class AirCapMaterial : public CapMaterialInterface
 {
