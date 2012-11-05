@@ -3,21 +3,7 @@
 
 using std::complex;
 
-class HomogeneousCharacteristicMatrixTestFixture
-{
-public:
-  /*
-  HomogeneousCharacteristicMatrixTestFixture()
-  {
-
-  }
-
-  ~HomogeneousCharacteristicMatrixTestFixture()
-  {
-
-  } 
-  */ 
-};
+class HomogeneousCharacteristicMatrixTestFixture {};
 
 TEST_FIXTURE(HomogeneousCharacteristicMatrixTestFixture, ConstructorSetsValues)
 {
@@ -38,17 +24,18 @@ TEST_FIXTURE(HomogeneousCharacteristicMatrixTestFixture, ConstructorSetsValues)
 
 TEST_FIXTURE(HomogeneousCharacteristicMatrixTestFixture, CheckMatrixCalculation)
 {
-  double pi = 3.1415926535897932384626;
+  const double pi = 3.1415926535897932384626;
+  const complex <double> i(0.0, 1.0);
+
   double wavelength = 550e-9;
   complex <double> index(2.4, 0.1);
   double thickness = 1.2e-6;
   complex <double> k = 2.0 * pi * index / wavelength;
-  complex <double> I(0.0, 1.0);
 
-  Matrix expected(1.0 / 2.0 *       (exp(-I * k * thickness) + exp(I * k * thickness)),
-		  1.0 / (2.0 * k) * (exp(-I * k * thickness) - exp(I * k * thickness)),
-		  (1.0 / 2.0) * k * (exp(-I * k * thickness) - exp(I * k * thickness)),
-		  1.0 / 2.0 *       (exp(-I * k * thickness) + exp(I * k * thickness)));
+  Matrix expected(1.0 / 2.0       * (exp(-i * k * thickness) + exp(i * k * thickness)),
+		  1.0 / (2.0 * k) * (exp(-i * k * thickness) - exp(i * k * thickness)),
+		  (1.0 / 2.0) * k * (exp(-i * k * thickness) - exp(i * k * thickness)),
+		  1.0 / 2.0       * (exp(-i * k * thickness) + exp(i * k * thickness)));
   
   HomogeneousCharacteristicMatrix hcm(index, thickness, wavelength);
 
@@ -65,7 +52,7 @@ TEST_FIXTURE(HomogeneousCharacteristicMatrixTestFixture, CheckMatrixCalculation)
   CHECK_CLOSE(expected.d.imag(), hcm.GetMatrix().d.imag(), tolerance);
 }
 
-TEST_FIXTURE(HomogeneousCharacteristicMatrixTestFixture, CheckSetters)
+TEST_FIXTURE(HomogeneousCharacteristicMatrixTestFixture, CheckSettersSetValues)
 {
   HomogeneousCharacteristicMatrix hcm;
   hcm.set_n(2.4);

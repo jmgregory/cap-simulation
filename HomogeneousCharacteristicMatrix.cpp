@@ -2,20 +2,26 @@
 #include "HomogeneousCharacteristicMatrix.h"
 
 HomogeneousCharacteristicMatrix::HomogeneousCharacteristicMatrix(double n, double k, double thickness, double wavelength)
-  : CharacteristicMatrix(thickness), _n(n), _k(k), _wavelength(wavelength)
+  : _n(n), _k(k)
 {
+  _thickness = thickness;
+  _wavelength = wavelength;
   CalculateHomogeneousMatrix();
 }
 
-HomogeneousCharacteristicMatrix::HomogeneousCharacteristicMatrix(complex <double> index, double thickness, double wavelength)
-  : CharacteristicMatrix(thickness), _n(real(index)), _k(imag(index)), _wavelength(wavelength)
+HomogeneousCharacteristicMatrix::HomogeneousCharacteristicMatrix(const complex <double> & index, double thickness, double wavelength)
+  : _n(real(index)), _k(imag(index))
 {
+  _thickness = thickness;
+  _wavelength = wavelength;
   CalculateHomogeneousMatrix();
 }
 
 HomogeneousCharacteristicMatrix::HomogeneousCharacteristicMatrix()
-  : CharacteristicMatrix(), _n(1.0), _k(0.0), _wavelength(400e-9)
+  : _n(1.0), _k(0.0)
 {
+  _thickness = 1e-6;
+  _wavelength = 400e-9;
   CalculateHomogeneousMatrix();
 }
 
@@ -44,7 +50,7 @@ complex <double> HomogeneousCharacteristicMatrix::index() const
   return complex <double> (_n, _k);
 }
 
-void HomogeneousCharacteristicMatrix::set_index(complex <double> index)
+void HomogeneousCharacteristicMatrix::set_index(const complex <double> & index)
 {
   set_index(real(index), imag(index));
 }
@@ -69,11 +75,6 @@ void HomogeneousCharacteristicMatrix::set_thickness(double thickness)
 {
   _thickness = thickness;
   CalculateHomogeneousMatrix();
-}
-
-double HomogeneousCharacteristicMatrix::wavelength() const
-{
-  return _wavelength;
 }
 
 void HomogeneousCharacteristicMatrix::set_wavelength(double wavelength)

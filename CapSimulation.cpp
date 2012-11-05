@@ -118,7 +118,7 @@ double CapSimulation::CalculateReflectivityForTimeDelay(double time_delay) const
 {
   vector <HomogeneousCharacteristicMatrix> matrices = BuildLayerMatricesList(time_delay);
   CharacteristicMatrix full_specimen = MultiplyMatrices(matrices);
-  return full_specimen.ReflectivityInEnvironment(_laser.probe_wavelength(), IndexBeforeSpecimen(), IndexAfterSpecimen());
+  return full_specimen.ReflectivityInEnvironment(IndexBeforeSpecimen(), IndexAfterSpecimen());
 }
 
 double sgn(double x)
