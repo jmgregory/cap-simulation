@@ -84,6 +84,8 @@ void * proxy_function(void * t_params)
 
 void print_data(const vector <CapPoint> & data, std::ostream & out)
 {
+  out << "# Column 1: Time Delay (s)" << std::endl;
+  out << "# Column 2: Reflectivity [(R - R0) / R0]" << std::endl;
   for (unsigned int i = 0; i < data.size(); i++)
     {
       out << data[i].time_delay << '\t' << data[i].reflectivity << std::endl;
