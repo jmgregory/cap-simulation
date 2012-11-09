@@ -15,7 +15,7 @@ test-all test all check: stdafx.h.gch $(patsubst %,%Run,$(my_tests))
 
 HomogeneousCharacteristicMatrixTest: ../Matrix.o ../CharacteristicMatrix.o
 CharacteristicMatrixTest: ../Matrix.o ../HomogeneousCharacteristicMatrix.o
-CapSimulationTest: ../TransducingLayer.o ../CharacteristicMatrix.o ../Matrix.o ../LaserBeam.o ../HomogeneousCharacteristicMatrix.o ../Exception.o
+CapSimulationTest: ../TransducingLayer.o ../CharacteristicMatrix.o ../Matrix.o ../LaserBeam.o ../HomogeneousCharacteristicMatrix.o ../Exception.o ../CapMaterialInterface.o
 ../CapSimulation.o: ../DefaultCapMaterial.h ../CapMaterialInterface.h
 
 stdafx.h.gch: stdafx.h
