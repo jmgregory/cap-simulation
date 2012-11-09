@@ -3,11 +3,11 @@
 #include <cstdlib>
 #include "CapSimulation.h"
 
-using namespace std;
-
 #define NUM_THREADS 2
 
-void print_data(const vector <CapPoint> & data, ostream & out = cout);
+using std::vector;
+
+void print_data(const vector <CapPoint> & data, std::ostream & out = std::cout);
 void *proxy_function(void *);
 
 struct sim_data
@@ -44,7 +44,7 @@ int main()
       rc = pthread_create(&thread[th], &attr, proxy_function, &t_params[th]);
       if (rc)
 	{
-	  cerr << "ERROR; return code from pthread_create() is " << rc << endl;
+	  std::cerr << "ERROR; return code from pthread_create() is " << rc << std::endl;
 	  exit(-1);
 	}
     }
@@ -54,7 +54,7 @@ int main()
       rc = pthread_join(thread[th], &status);
       if (rc)
 	{
-	  cerr << "ERROR; return code from pthread_join() is " << rc << endl;
+	  std::cerr << "ERROR; return code from pthread_join() is " << rc << std::endl;
 	  exit(-1);
 	}
     }
@@ -74,18 +74,18 @@ void * proxy_function(void * t_params)
   CapSimulation mySim;
   if (params->id == 0)
     {
-      mySim.PrintParameters(cerr);
-      mySim.PrintParameters(cout, "# ");
+      mySim.PrintParameters(std::cerr);
+      mySim.PrintParameters(std::cout, "# ");
     }
   vector <CapPoint> data = mySim.Run(params->start_time, params->stop_time, params->time_step);
   params->output = new vector <CapPoint> (data);
   return NULL;
 }
 
-void print_data(const vector <CapPoint> & data, ostream & out)
+void print_data(const vector <CapPoint> & data, std::ostream & out)
 {
   for (unsigned int i = 0; i < data.size(); i++)
     {
-      out << data[i].time_delay << '\t' << data[i].reflectivity << endl;
+      out << data[i].time_delay << '\t' << data[i].reflectivity << std::endl;
     }
 }
