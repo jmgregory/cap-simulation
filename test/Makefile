@@ -1,4 +1,4 @@
-my_tests=CharacteristicMatrixTest ExceptionTest HomogeneousCharacteristicMatrixTest LaserBeamTest MatrixTest TransducingLayerTest CapSimulationTest
+my_tests=CharacteristicMatrixTest ExceptionTest HomogeneousCharacteristicMatrixTest LaserBeamTest MatrixTest TransducingLayerTest CapSimulationTest ThreadedCapSimulationRunnerTest
 
 LIBS=-lUnitTest++
 CPPFLAGS=-O0 -Wall -Winvalid-pch -I/opt/local/include/UnitTest++ -L/opt/local/lib
@@ -17,6 +17,7 @@ HomogeneousCharacteristicMatrixTest: ../Matrix.o ../CharacteristicMatrix.o
 CharacteristicMatrixTest: ../Matrix.o ../HomogeneousCharacteristicMatrix.o
 CapSimulationTest: ../TransducingLayer.o ../CharacteristicMatrix.o ../Matrix.o ../LaserBeam.o ../HomogeneousCharacteristicMatrix.o ../Exception.o ../CapMaterialInterface.o
 ../CapSimulation.o: ../DefaultCapMaterial.h ../CapMaterialInterface.h
+ThreadedCapSimulationRunnerTest: ../CapSimulation.o ../TransducingLayer.o ../CharacteristicMatrix.o ../Matrix.o ../LaserBeam.o ../HomogeneousCharacteristicMatrix.o ../Exception.o ../CapMaterialInterface.o
 
 stdafx.h.gch: stdafx.h
 	@g++ $(CPPFLAGS) -o $@ -c $^
