@@ -1,5 +1,5 @@
 #ifndef JMG_LASER_BEAM_H
-#define JMG_LASER_BEAH_H
+#define JMG_LASER_BEAM_H
 
 static const double pi = 3.1415926535897932384626;
 
