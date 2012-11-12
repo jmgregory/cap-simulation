@@ -50,7 +50,7 @@ private:
   void CheckDepthSamplingResolutionAgainstMaterial();
   double CalculateReflectivityForTimeDelay(double time_delay) const;
   double CalculateDifferentialReflectivity(double modulated_reflectivity, double baseline_reflectivity) const;
-  double CalculateStrain(double td, double z) const;
+  double CalculateStrain(double time_delay, double depth) const;
   double CalculateUnstrainedReflectivity() const;
   std::vector <HomogeneousCharacteristicMatrix> BuildLayerMatricesList(double time_delay) const;
   CharacteristicMatrix MultiplyMatrices(const std::vector <HomogeneousCharacteristicMatrix> & matrices) const;

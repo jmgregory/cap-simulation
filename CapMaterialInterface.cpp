@@ -16,19 +16,19 @@ void CapMaterialInterface::PrintParameters(std::ostream & out, std::string tag) 
   PrintCustomParameters(out, tag);
 }
 
-double CapMaterialInterface::dndeta(double z, double lambda) const
+double CapMaterialInterface::d_n_d_strain(double depth, double wavelength) const
 {
-  return real(d_index_d_eta(z, lambda));
+  return real(d_index_d_strain(depth, wavelength));
 }
 
-double CapMaterialInterface::dkappadeta(double z, double lambda) const
+double CapMaterialInterface::d_kappa_d_strain(double depth, double wavelength) const
 {
-  return imag(d_index_d_eta(z, lambda));
+  return imag(d_index_d_strain(depth, wavelength));
 }
 
-std::complex <double> CapMaterialInterface::d_index_d_eta(double z, double lambda) const
+std::complex <double> CapMaterialInterface::d_index_d_strain(double depth, double wavelength) const
 {
   // Equation from O. Matsuda and O. B. Wright, J. Opt. Soc. Am. B, vol. 19, pp. 3028-3041, Dec 2002.
-  std::complex <double> index(n(z, lambda), kappa(z, lambda));
-  return -(index * index * index) / 2.0 * p12(z, lambda);
+  std::complex <double> index(n(depth, wavelength), kappa(depth, wavelength));
+  return -(index * index * index) / 2.0 * p12(depth, wavelength);
 }

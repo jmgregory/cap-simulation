@@ -148,8 +148,8 @@ complex <double> CapSimulation::CalculateIndexWithStrain(double time_delay, doub
     }
   else
     {
-      return complex <double> (_material->n(depth, _laser.probe_wavelength())     + strain * _material->dndeta(depth, _laser.probe_wavelength()),
-			       _material->kappa(depth, _laser.probe_wavelength()) + strain * _material->dkappadeta(depth, _laser.probe_wavelength()));  
+      return complex <double> (_material->n(depth, _laser.probe_wavelength())     + strain * _material->d_n_d_strain(depth, _laser.probe_wavelength()),
+			       _material->kappa(depth, _laser.probe_wavelength()) + strain * _material->d_kappa_d_strain(depth, _laser.probe_wavelength()));  
     }
 }
 
