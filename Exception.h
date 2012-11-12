@@ -9,6 +9,7 @@ using std::string;
 class Exception : public std::exception
 {
 public:
+  Exception(const string & what) : _what(what) {}
   Exception(const char * what) : _what(what) {}
 
   const char* what() const throw()
