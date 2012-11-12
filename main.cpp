@@ -1,6 +1,5 @@
 #include <iostream>
-#include <pthread.h>
-#include <cstdlib>
+#include <vector>
 #include "CapSimulation.h"
 #include "ThreadedCapSimulationRunner.h"
 

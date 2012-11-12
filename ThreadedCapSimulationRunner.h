@@ -6,6 +6,8 @@
 #include "LaserBeam.h"
 #include "CapMaterialInterface.h"
 
+struct sim_data;
+
 class ThreadedCapSimulationRunner
 {
  public:
@@ -17,13 +19,19 @@ class ThreadedCapSimulationRunner
   std::vector <CapPoint> Run();
 
  private:
-  static void * proxy_function(void * t_params);
+  static void * RunSimulationThread(void *t_params);
+  void StartThreads();
+  void WaitForThreadsToFinish();
+  std::vector <CapPoint> ConcatenateThreadOutputs();
 
   CapSimulation * _simulation_seed;
   unsigned int _thread_count;
   double _start_time_delay;
   double _stop_time_delay;
   double _time_delay_step;
+
+  pthread_t * _threads;
+  sim_data * _t_params;
 };
 
 struct sim_data
@@ -35,6 +43,5 @@ struct sim_data
   double time_delay_step;
   CapSimulation * simulation;
 };
-
 
 #endif
