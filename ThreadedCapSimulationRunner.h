@@ -18,6 +18,8 @@ class ThreadedCapSimulationRunner
 
   std::vector <CapPoint> Run();
 
+  void PrintParameters(std::ostream & out = std::cout, std::string tag = "") const;
+
  private:
   static void * RunSimulationThread(void *t_params);
   void StartThreads();

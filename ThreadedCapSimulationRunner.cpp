@@ -95,3 +95,15 @@ void * ThreadedCapSimulationRunner::RunSimulationThread(void * t_params)
   params->output = new std::vector <CapPoint> (data);
   return NULL;
 }
+
+void ThreadedCapSimulationRunner::PrintParameters(std::ostream & out, std::string tag) const
+{
+  out << tag << "Threaded CAP Simulation Runner" << std::endl;
+  out << tag << "------------------------------" << std::endl;
+  out << tag << "  Number of threads: " << _thread_count << std::endl;
+  out << tag << "   Start time delay: " << _start_time_delay << std::endl;
+  out << tag << "    Stop time delay: " << _stop_time_delay << std::endl;
+  out << tag << "    Time delay step: " << _time_delay_step << std::endl;
+  out << tag << std::endl;
+  _simulation_seed->PrintParameters(out, tag);
+}
