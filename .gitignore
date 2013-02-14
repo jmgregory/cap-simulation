@@ -9,3 +9,6 @@ test/*Test
 stdafx.h.gch
 \#*\#
 damaged-diamond/
+experimental-data
+processing.dt
+.datatool_history
