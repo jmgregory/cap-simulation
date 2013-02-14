@@ -27,3 +27,7 @@ clean:
 test check:
 	@cd test && make
 	@cppcheck --enable=all -i Stephanie-ErAs -i test . > /dev/null
+
+.PHONY: env
+env:
+	emacs ./*.cpp ./*.h ./Makefile ./.gitignore
