@@ -58,6 +58,7 @@ private:
   complex <double> IndexBeforeSpecimen() const;
   complex <double> IndexAfterSpecimen() const;
   complex <double> CalculateIndexWithStrain(double time_delay, double depth) const;
+  double StrainPulseDepth(double time_delay) const;
 };
 
 #endif

@@ -55,6 +55,17 @@ double CapSimulation::CalculateUnstrainedReflectivity() const
   return result;
 }
 
+double CapSimulation::StrainPulseDepth(double time_delay) const
+{
+  double depth = 0.0;
+  double time_increment = time_delay / 10000.0;
+  for (double time = 0.0; time <= time_delay; time += time_increment)
+    {
+      depth += time_increment * _material->speed_of_sound(depth);
+    }
+  return depth;
+}
+
 vector <HomogeneousCharacteristicMatrix> CapSimulation::BuildLayerMatricesList(double time_delay) const
 {
   vector <HomogeneousCharacteristicMatrix> matrices;
@@ -64,7 +75,10 @@ vector <HomogeneousCharacteristicMatrix> CapSimulation::BuildLayerMatricesList(d
 					  _depth_sampling_resolution, 
 					  _laser.probe_wavelength()));
 
-  for (double depth = 0.0; depth < _material->max_interesting_depth(); depth += _depth_sampling_resolution)
+  double furthest_depth = StrainPulseDepth(time_delay) + 50e-9;
+  if (_material->max_interesting_depth() > furthest_depth) furthest_depth = _material->max_interesting_depth();
+
+  for (double depth = 0.0; depth < furthest_depth; depth += _depth_sampling_resolution)
     {
       this_index = CalculateIndexWithStrain(time_delay, depth);
       if (this_index == matrices[matrices.size()-1].index())
