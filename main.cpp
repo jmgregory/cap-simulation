@@ -18,7 +18,9 @@ int main()
   runner.set_time_delays(start_time, stop_time, time_step);
   runner.set_number_of_threads(NUM_THREADS);
 
-  simulation.PrintParameters(std::cout, "# ");
+  runner.PrintParameters(std::cout, "# ");
+  runner.PrintParameters(std::cerr, "");
+
   print_data(runner.Run());
 
   return 0;
