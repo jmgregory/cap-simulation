@@ -28,6 +28,7 @@ public:
 
   // Transducing layer
   virtual TransducingLayer transducing_layer() const = 0;
+  virtual void set_transducing_layer(const TransducingLayer & tl) = 0;
 
   // A descriptive name for the material
   virtual std::string description() const = 0;

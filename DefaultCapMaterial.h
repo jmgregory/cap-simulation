@@ -9,6 +9,9 @@ class TransducingLayer;
 
 class DefaultCapMaterial : public CapMaterialInterface
 {
+ private:
+  TransducingLayer _transducing_layer;
+  
  public:
   double smallest_feature() const           { return 10e-9; }
   double max_interesting_depth() const      { return 2e-6; }
@@ -33,12 +36,17 @@ class DefaultCapMaterial : public CapMaterialInterface
 
   TransducingLayer transducing_layer() const
   {
-    return TransducingLayer();
+    return _transducing_layer;
   }
 
   CapMaterialInterface * clone() const
   {
     return new DefaultCapMaterial();
+  }
+
+  void set_transducing_layer(const TransducingLayer & tl)
+  {
+    _transducing_layer = tl;
   }
 };
 
