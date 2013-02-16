@@ -37,7 +37,7 @@ void ThreadedCapSimulationRunner::StartThreads()
       _t_params[th].time_delay_step = _time_delay_step;
       _t_params[th].id = th;
       _t_params[th].output = NULL;
-      _t_params[th].simulation = _simulation_seed;
+      _t_params[th].simulation = _simulation_seed->clone();
 
       rc = pthread_create(&_threads[th], &attr, RunSimulationThread, &_t_params[th]);
       if (rc)
@@ -84,6 +84,10 @@ std::vector <CapPoint> ThreadedCapSimulationRunner::Run()
   StartThreads();
   WaitForThreadsToFinish();
   std::vector <CapPoint> result = ConcatenateThreadOutputs();
+  for (unsigned int i = 0; i < _thread_count; i++)
+    {
+      delete _t_params[i].simulation;
+    }
   free(_threads);
   free(_t_params);
   return result;

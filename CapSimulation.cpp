@@ -187,13 +187,12 @@ CapSimulation::CapSimulation()
   CheckDepthSamplingResolutionAgainstMaterial();
 }
 
-void CapSimulation::DestroyMaterialIfNecessary()
+CapSimulation * CapSimulation::clone() const
 {
-  if (_material_needs_destroyed)
-    {
-      delete _material;
-      _material_needs_destroyed = false;
-    }
+  CapSimulation * output = new CapSimulation();
+  output->set_material(_material);
+  output->set_laser(_laser);
+  return output;
 }
 
 void CapSimulation::set_material(CapMaterialInterface * material)
@@ -201,17 +200,16 @@ void CapSimulation::set_material(CapMaterialInterface * material)
   if (material == NULL)
     {
       _material = new DefaultCapMaterial();
-      _material_needs_destroyed = true;
     }
   else
     {
-      DestroyMaterialIfNecessary();
-      _material = material;
+      delete _material;
+      _material = material->clone();
     }
   CheckDepthSamplingResolutionAgainstMaterial();
 }
 
 CapSimulation::~CapSimulation()
 {
-  DestroyMaterialIfNecessary();
+  delete _material;
 }

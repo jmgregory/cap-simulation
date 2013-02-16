@@ -34,6 +34,7 @@ public:
 
   virtual void PrintCustomParameters(std::ostream & out = std::cout, std::string tag = "") const = 0;
   virtual ~CapMaterialInterface() {}
+  virtual CapMaterialInterface * clone() const = 0;
 
  private:
   // Photoelastic tensor component p12

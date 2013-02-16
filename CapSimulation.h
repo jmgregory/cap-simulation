@@ -32,6 +32,8 @@ public:
   CapSimulation();
   ~CapSimulation();
 
+  CapSimulation * clone() const;
+  
   std::vector <CapPoint> Run(double stop_time_delay, double time_delay_step);
   std::vector <CapPoint> Run(double start_time_delay, double stop_time_delay, double time_delay_step);
 

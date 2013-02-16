@@ -35,6 +35,11 @@ class DefaultCapMaterial : public CapMaterialInterface
   {
     return TransducingLayer();
   }
+
+  CapMaterialInterface * clone() const
+  {
+    return new DefaultCapMaterial();
+  }
 };
 
 #endif
