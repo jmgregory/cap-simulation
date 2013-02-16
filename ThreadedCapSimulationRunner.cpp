@@ -27,12 +27,13 @@ void ThreadedCapSimulationRunner::StartThreads()
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   int rc;
-  int time_step_count = (_stop_time_delay - _start_time_delay) / _time_delay_step;
+  int time_step_count = ((_stop_time_delay - _start_time_delay) / _time_delay_step) + 1;
   for (unsigned int th = 0; th < _thread_count; th++)
     {
       _t_params[th].start_time_delay = _start_time_delay + (th * (time_step_count / _thread_count)) * _time_delay_step;
       _t_params[th].stop_time_delay = _start_time_delay + (((th + 1) * (time_step_count / _thread_count)) - 1) * _time_delay_step;
-      if (th == _thread_count - 1) _t_params[th].stop_time_delay += _time_delay_step;
+      if (th == _thread_count - 1) _t_params[th].stop_time_delay = _stop_time_delay;
+      _t_params[th].stop_time_delay += _time_delay_step * 0.1; // Fix for floating point rounding errors, which can drop simulation points
       _t_params[th].time_delay_step = _time_delay_step;
       _t_params[th].id = th;
       _t_params[th].output = NULL;
