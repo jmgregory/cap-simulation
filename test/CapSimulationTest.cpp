@@ -123,15 +123,21 @@ double CalculateAverageDeviationFromIdeal(std::vector <CapPoint> data_points, Da
 
 class AirCapMaterial : public CapMaterialInterface
 {
+ private:
+  TransducingLayer _transducing_layer;
+  double p12(double z, double lambda) const {return 0.1;}
+ public:
+  AirCapMaterial() : _transducing_layer(TransducingLayer()) {};
   double smallest_feature() const {return 1e-9;}
   double max_interesting_depth() const {return 1e-9;}
   double n(double z, double lambda) const {return 1.0;}
   double kappa(double z, double lambda) const {return 0.0;}
   double speed_of_sound(double z) const {return 346.13;}
-  double p12(double z, double lambda) const {return 0.1;}
-  TransducingLayer transducing_layer() const {return TransducingLayer();}
+  TransducingLayer transducing_layer() const {return _transducing_layer;}
   void PrintCustomParameters(std::ostream & out = std::cout, std::string tag = "") const {}
   std::string description() const {return "Air";}
+  CapMaterialInterface * clone() const {return new AirCapMaterial();}
+  void set_transducing_layer(const TransducingLayer & tl) {_transducing_layer = tl;}
 };
 
 struct AirTestFixture
