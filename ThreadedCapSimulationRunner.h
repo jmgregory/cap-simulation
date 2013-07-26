@@ -11,7 +11,8 @@ struct sim_data;
 class ThreadedCapSimulationRunner
 {
  public:
-  ThreadedCapSimulationRunner(CapSimulation * seed);
+  ThreadedCapSimulationRunner(const CapSimulation * seed);
+  ~ThreadedCapSimulationRunner();
   
   void set_number_of_threads(unsigned int thread_count);
   void set_time_delays(double start_time_delay, double stop_time_delay, double time_delay_step);

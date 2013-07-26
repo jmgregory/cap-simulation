@@ -39,7 +39,7 @@ public:
 
   void PrintParameters(std::ostream & out = std::cout, std::string tag = "") const;
 
-  void set_material(CapMaterialInterface * material);
+  void set_material(const CapMaterialInterface * material);
   void set_laser(const LaserBeam & laser);
 
 private:

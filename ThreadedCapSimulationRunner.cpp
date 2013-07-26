@@ -4,9 +4,14 @@
 #include "ThreadedCapSimulationRunner.h"
 #include "CapSimulation.h"
 
-ThreadedCapSimulationRunner::ThreadedCapSimulationRunner(CapSimulation *seed)
-  :_simulation_seed(seed), _thread_count(1), _start_time_delay(0.0), _stop_time_delay(100e-12), _time_delay_step(1e-12), _threads(NULL), _t_params(NULL)
+ThreadedCapSimulationRunner::ThreadedCapSimulationRunner(const CapSimulation *seed)
+  :_simulation_seed(seed->clone()), _thread_count(1), _start_time_delay(0.0), _stop_time_delay(100e-12), _time_delay_step(1e-12), _threads(NULL), _t_params(NULL)
 { }
+
+ThreadedCapSimulationRunner::~ThreadedCapSimulationRunner()
+{
+  delete _simulation_seed;
+}
 
 void ThreadedCapSimulationRunner::set_number_of_threads(unsigned int thread_count)
 {
